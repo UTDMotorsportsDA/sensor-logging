@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.security.auth.RefreshFailedException;
 import java.awt.*;
 import java.time.Duration;
 import java.time.Instant;
@@ -7,7 +8,45 @@ import java.time.Instant;
 /**
  * Created by brian on 10/16/16.
  */
-// implement Comparable to allow sorting in terms of next update time
+public abstract class Sensor {
+    protected String name = null;
+    protected boolean critical = false;
+
+    // value update, pit, driver, pit critical, driver critical
+    protected Duration[] refreshPeriods = null;
+    // value update, pit, driver
+    protected Instant[] lastRefreshes = null;
+
+    public String getLabel() { return name; }
+    public boolean isCritical() { return critical; }
+    public Instant nextRefresh(RefreshType rType) {
+        int typeOffset = 0;
+        switch (rType) {
+            case VALUE_UPDATE:
+                typeOffset = 0;
+                break;
+            case PIT:
+                typeOffset = 1;
+                break;
+            case DRIVER:
+                typeOffset = 2;
+                break;
+        }
+
+        if(lastRefreshes[typeOffset] == null)
+            return Instant.now();
+
+        int criticalOffset = isCritical() ? 2 : 0;
+
+        ...
+    }
+    public ComparableSensor asComparable(RefreshType rType) { return new ComparableSensor(this, rType); }
+    // various methods to stay up-to-date and retrieve value
+    public abstract void refresh(RefreshType rType);
+    public abstract String getCurrent(RefreshType rType);
+    public abstract String getRefreshed(RefreshType rType);
+}
+
 public abstract class Sensor {
     // sensor name (e.g.: accelerometer_x_axis)
     protected String label = null;
@@ -57,13 +96,13 @@ public abstract class Sensor {
         return lastReport[(isPit ? 0 : 1)].plus(relevantPeriod);
     }
 
-    // return wrapper used to compare report/update times of instances
-    public ComparableSensor asComparable(boolean update, boolean isPit) {
-        return new ComparableSensor(this, update, isPit);
-    }
-
     // update the sensor's current value (returns true if this is now in a critical state)
     public abstract boolean update();
+
+    // return wrapper used to compare report/update times of instances
+    public ComparableSensor asComparable(RefreshType r) {
+        return new ComparableSensor(this, r);
+    }
 
     // retrieve a sensor reading (make sure to synchronize in all children)
     public abstract String getValue();

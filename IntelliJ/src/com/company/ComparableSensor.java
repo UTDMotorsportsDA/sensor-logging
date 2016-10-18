@@ -7,19 +7,11 @@ import java.time.Instant;
  */
 class ComparableSensor implements Comparable<ComparableSensor> {
     private Sensor s = null;
-    private boolean updateOrReport = false, pitOrDriver = false;
+    private RefreshType refresh = null;
 
-    ComparableSensor(Sensor s, boolean updateOrReport, boolean pitOrDriver) {
+    ComparableSensor(Sensor s, RefreshType r) {
         this.s = s;
-        this.updateOrReport = updateOrReport;
-        this.pitOrDriver = pitOrDriver;
-    }
-
-    public Instant compareBy() {
-        if(updateOrReport) // report
-            return s.timeOfNextReport(pitOrDriver);
-        else // update
-            return s.timeOfNextUpdate();
+        this.refresh = r;
     }
 
     @Override
