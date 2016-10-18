@@ -16,8 +16,18 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
         this.updatePeriod = timeBetweenUpdates;
     }
 
-    public String getValue() {
-        trackUpdate(); // takes care of interval timing
-        return Float.toString((float)Math.random() * 100.f);
+    // returns true if this is now in a critical state
+    public synchronized boolean update() {
+        trackUpdate();
+        Float newValue = Float.valueOf((float)Math.random() * 100.f);
+
+        // if(not critical)
+        return false;
+        // else
+        // return true;
+    }
+
+    public synchronized String getValue() {
+        return currentValue.toString();
     }
 }

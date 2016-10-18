@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by brian on 10/16/16.
@@ -16,7 +17,7 @@ public class DataLoggerClient implements Runnable {
 
     private String server = null;
     private int port = 0;
-    private Queue<Sensor> sensorQueue = new PriorityQueue<Sensor>();
+    private Queue<Sensor> sensorQueue = new PriorityBlockingQueue<Sensor>();
     boolean done = false;
 
     public DataLoggerClient(String serverHostname, int serverPort, Sensor[] sensors) {
@@ -27,12 +28,14 @@ public class DataLoggerClient implements Runnable {
         }
     }
 
-    public void addCritical(Sensor s) {
-        // if sensor is in queue, remove old nominal-state duplicate
-        // add sensor to queue
-    }
+    // intended to inform this instance of a new update interval immediately
+    public void reAddSensor(Sensor s) {
+        // if sensor is in queue, remove
+        sensorQueue.remove(s);
 
-    // public void removeCritical()?
+        // add sensor to queue (if sensor was in queue, moves it to the new update period)
+        sensorQueue.add(s);
+    }
 
     @Override
     public void run() {
@@ -57,7 +60,7 @@ public class DataLoggerClient implements Runnable {
                     }
                 }
                 else
-                    System.out.println("    wait " + 0 + " milliseconds for sensor " + currentSensor.getLabel());
+                    System.out.println("    wait " + 0 + " nanos for sensor " + currentSensor.getLabel());
 
                 // get updated value
                 outgoingWriter.println(currentSensor.getDataPoint());
