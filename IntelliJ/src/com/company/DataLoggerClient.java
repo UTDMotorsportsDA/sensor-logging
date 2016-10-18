@@ -27,6 +27,13 @@ public class DataLoggerClient implements Runnable {
         }
     }
 
+    public void addCritical(Sensor s) {
+        // if sensor is in queue, remove old nominal-state duplicate
+        // add sensor to queue
+    }
+
+    // public void removeCritical()?
+
     @Override
     public void run() {
         // open a socket and writer to send data to the server
