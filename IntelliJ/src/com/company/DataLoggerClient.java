@@ -17,14 +17,14 @@ public class DataLoggerClient implements Runnable {
 
     private String server = null;
     private int port = 0;
-    private Queue<Sensor> sensorQueue = new PriorityBlockingQueue<Sensor>();
+    private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<>();
     boolean done = false;
 
     public DataLoggerClient(String serverHostname, int serverPort, Sensor[] sensors) {
         server = serverHostname;
         port = serverPort;
         for(Sensor s : sensors) {
-            sensorQueue.add(s);
+            sensorQueue.add(s.asComparable(RefreshType.PIT));
         }
     }
 

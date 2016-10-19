@@ -1,7 +1,5 @@
 package com.company;
 
-import javax.security.auth.RefreshFailedException;
-import java.awt.*;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -19,6 +17,7 @@ public abstract class Sensor {
 
     public String getLabel() { return name; }
     public boolean isCritical() { return critical; }
+    private void setCritical(boolean newState) { critical = newState; }
     public Instant nextRefresh(RefreshType rType) {
         int typeOffset = 0;
         switch (rType) {
@@ -38,15 +37,17 @@ public abstract class Sensor {
 
         int criticalOffset = isCritical() ? 2 : 0;
 
-        ...
+        // last refresh plus time until next refresh
+        return lastRefreshes[typeOffset].plus(refreshPeriods[(typeOffset == 0) ? 0 : typeOffset + criticalOffset]);
     }
     public ComparableSensor asComparable(RefreshType rType) { return new ComparableSensor(this, rType); }
     // various methods to stay up-to-date and retrieve value
-    public abstract void refresh(RefreshType rType);
+    public abstract void refresh(); // assumed to be of type VALUE_UPDATE
     public abstract String getCurrent(RefreshType rType);
     public abstract String getRefreshed(RefreshType rType);
 }
 
+/*
 public abstract class Sensor {
     // sensor name (e.g.: accelerometer_x_axis)
     protected String label = null;
@@ -112,7 +113,6 @@ public abstract class Sensor {
         return label + "=" + getValue();
     }
 
-    /*
     public synchronized Duration timeUntilNextUpdate() {
         if(lastUpdate == null || updatePeriod == null)
             return Duration.ZERO;
@@ -120,5 +120,5 @@ public abstract class Sensor {
         // return updatePeriod minus time already elapsed
         return updatePeriod.minus(Duration.between(lastUpdate, Instant.now()));
     }
-    */
 }
+*/

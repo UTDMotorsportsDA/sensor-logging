@@ -16,7 +16,7 @@ class ComparableSensor implements Comparable<ComparableSensor> {
 
     @Override
     public int compareTo(ComparableSensor cs) {
-        return this.compareBy().compareTo(cs.compareBy());
+        return s.nextRefresh(refresh).compareTo(cs.s.nextRefresh(cs.refresh));
     }
 
     public Sensor sensor() { return s; }
