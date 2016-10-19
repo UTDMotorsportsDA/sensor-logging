@@ -3,6 +3,7 @@ package com.company;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.Ref;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -19,22 +20,24 @@ public class DataLoggerClient implements Runnable {
     private int port = 0;
     private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<>();
     boolean done = false;
+    // DataLoggerClient is solely intended to report to the pit (either immediately or to a file for later)
+    private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
 
     public DataLoggerClient(String serverHostname, int serverPort, Sensor[] sensors) {
         server = serverHostname;
         port = serverPort;
         for(Sensor s : sensors) {
-            sensorQueue.add(s.asComparable(RefreshType.PIT));
+            sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
         }
     }
 
     // intended to inform this instance of a new update interval immediately
-    public void reAddSensor(Sensor s) {
+    public void renewSensor(Sensor s) {
         // if sensor is in queue, remove
-        sensorQueue.remove(s);
+        sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE));
 
         // add sensor to queue (if sensor was in queue, moves it to the new update period)
-        sensorQueue.add(s);
+        sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
     }
 
     @Override
@@ -47,26 +50,29 @@ public class DataLoggerClient implements Runnable {
 
             while(!done) {
                 // retrieve a sensor from which to read out of the queue
-                Sensor currentSensor = sensorQueue.poll();
+                ComparableSensor currentComparableSensor = sensorQueue.poll();
+                Sensor currentSensor = currentComparableSensor.sensor();
 
                 // wait until time to update
-                Duration negativeDelta = Duration.between(currentSensor.timeOfNextUpdate(), Instant.now());
+                Duration negativeDelta = Duration.between(currentComparableSensor.nextRefresh(), Instant.now());
                 if(negativeDelta.isNegative()) {
-                    System.out.println("    wait " + negativeDelta.negated().toNanos() + " nanos for sensor " + currentSensor.getLabel());
+                    long millis = negativeDelta.negated().toMillis();
+                    int nanos = (int)(negativeDelta.negated().toNanos() - 1000 * millis);
+                    System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
                     try {
-                        Thread.sleep(-1 * negativeDelta.toMillis(), (int)(-1 * (negativeDelta.toNanos() - 1000 * negativeDelta.toMillis())));
+                        Thread.sleep(millis, nanos);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
                 else
-                    System.out.println("    wait " + 0 + " nanos for sensor " + currentSensor.getLabel());
+                    System.out.println("    wait " + 0 + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
 
                 // get updated value
-                outgoingWriter.println(currentSensor.getDataPoint());
+                outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentComparableSensor.sensor().getCurrent(currentComparableSensor.rType()));
 
                 // re-enqueue sensor for next update
-                sensorQueue.add(currentSensor);
+                sensorQueue.add(currentComparableSensor);
             }
         } catch (IOException e) {
             e.printStackTrace();

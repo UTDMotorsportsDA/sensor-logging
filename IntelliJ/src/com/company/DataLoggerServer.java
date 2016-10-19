@@ -48,5 +48,5 @@ public class DataLoggerServer implements Runnable {
     }
 
     // allow server to quit
-    public void end() { done = true; in.close(); }
+    public void end() { done = true; if(in != null) in.close(); }
 }

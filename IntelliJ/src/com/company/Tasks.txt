@@ -1,0 +1,2 @@
+add sensor critical threshold
+abstract DataLoggerClient to writing to indiscriminate output stream (mainly for file and socket I/O)

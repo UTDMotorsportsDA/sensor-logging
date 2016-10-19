@@ -13,7 +13,7 @@ public abstract class Sensor {
     // value update, pit, driver, pit critical, driver critical
     protected Duration[] refreshPeriods = null;
     // value update, pit, driver
-    protected Instant[] lastRefreshes = null;
+    protected Instant[] lastRefreshes = new Instant[3];
 
     public String getLabel() { return name; }
     public boolean isCritical() { return critical; }
