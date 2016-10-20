@@ -8,22 +8,36 @@ import java.time.Instant;
  */
 public class SpoofSensor extends Sensor { // fake sensor data for testing
 
-    private float currentValue = 0.f;
+    private float currentValue;
+    private float criticalThreshold;
 
-    public SpoofSensor(String label) {
-        this.name = label;
+    private boolean checkCritical(float newValue) {
+        if(newValue < criticalThreshold)
+            return false;
+        else
+            return true;
     }
 
-    public SpoofSensor(String label, Duration[] timesBetweenUpdates) {
-        this(label);
+    public SpoofSensor(String label, Duration[] timesBetweenUpdates, float criticalThreshold) {
+        super(label);
         this.refreshPeriods = timesBetweenUpdates.clone();
+        this.criticalThreshold = criticalThreshold;
     }
 
-    public synchronized void refresh() {
+    @Override
+    public synchronized boolean refresh() {
+        boolean wasCritical = critical;
+
         currentValue = (float)Math.random() * 100.f;
         lastRefreshes[0] = Instant.now();
+
+        if((critical = checkCritical(currentValue)) == wasCritical)
+            return false; // critical state has remained the same
+        else
+            return true; // critical state has changed
     }
 
+    @Override
     public synchronized String getCurrent(RefreshType r) {
         switch (r) {
             case PIT:
@@ -38,6 +52,7 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
         return String.valueOf(currentValue);
     }
 
+    @Override
     public synchronized String getRefreshed(RefreshType r) {
         refresh();
         return getCurrent(r);

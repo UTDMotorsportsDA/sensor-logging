@@ -56,8 +56,10 @@ public class DataLoggerClient implements Runnable {
                 // wait until time to update
                 Duration negativeDelta = Duration.between(currentComparableSensor.nextRefresh(), Instant.now());
                 if(negativeDelta.isNegative()) {
-                    long millis = negativeDelta.negated().toMillis();
-                    int nanos = (int)(negativeDelta.negated().toNanos() - 1000 * millis);
+
+                    long millis = -1 * negativeDelta.toMillis();
+                    int nanos = -1 * (int)negativeDelta.plusMillis(millis).toNanos();
+
                     System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
                     try {
                         Thread.sleep(millis, nanos);

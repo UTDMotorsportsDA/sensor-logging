@@ -15,9 +15,12 @@ public abstract class Sensor {
     // value update, pit, driver
     protected Instant[] lastRefreshes = new Instant[3];
 
+    public Sensor(String label) {
+        this.name = label;
+    }
+
     public String getLabel() { return name; }
     public boolean isCritical() { return critical; }
-    private void setCritical(boolean newState) { critical = newState; }
     public Instant nextRefresh(RefreshType rType) {
         int typeOffset = 0;
         switch (rType) {
@@ -42,7 +45,7 @@ public abstract class Sensor {
     }
     public ComparableSensor asComparable(RefreshType rType) { return new ComparableSensor(this, rType); }
     // various methods to stay up-to-date and retrieve value
-    public abstract void refresh(); // assumed to be of type VALUE_UPDATE
+    public abstract boolean refresh(); // assumed to be of type VALUE_UPDATE, returns whether 'critical' has changed
     public abstract String getCurrent(RefreshType rType);
     public abstract String getRefreshed(RefreshType rType);
 }
