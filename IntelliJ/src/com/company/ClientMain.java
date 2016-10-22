@@ -14,9 +14,9 @@ public class ClientMain {
 
         // example sensors
         Sensor[] sensors = {
-                new SpoofSensor("2", new Duration[] {Duration.ofMillis(10), Duration.ofNanos(199000657), Duration.ofSeconds(5), Duration.ofMillis(1), Duration.ofMillis(500)}),
-                new SpoofSensor("3", new Duration[] {Duration.ofMillis(10), Duration.ofNanos(299000458), Duration.ofSeconds(10), Duration.ofMillis(1), Duration.ofMillis(1000)}),
-                new SpoofSensor("5", new Duration[] {Duration.ofMillis(10), Duration.ofNanos(499000545), Duration.ofSeconds(10), Duration.ofMillis(1), Duration.ofMillis(1000)})
+                new SpoofSensor("2", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(2), Duration.ofMillis(100)}, 200.f),
+                new SpoofSensor("3", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(3), Duration.ofMillis(300)}, 100.f),
+                new SpoofSensor("5", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(5), Duration.ofMillis(500)}, 800.f)
         };
 
         // client to collect and transmit data, server to receive data

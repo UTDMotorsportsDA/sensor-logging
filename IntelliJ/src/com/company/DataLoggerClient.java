@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.sql.Ref;
 import java.time.Duration;
@@ -44,9 +45,10 @@ public class DataLoggerClient implements Runnable {
     public void run() {
         // start the sensor update thread
         SensorUpdater updater0 = new SpoofSensorUpdater(this);
-        ComparableSensor[] allComparableSensors = new ComparableSensor[sensorQueue.size()];
-        for(ComparableSensor cs : allComparableSensors)
+
+        for(ComparableSensor cs : sensorQueue.toArray(new ComparableSensor[sensorQueue.size()]))
             updater0.addSensor(cs.sensor());
+
         Thread updater0Thread = new Thread(updater0);
         updater0Thread.start();
 
@@ -66,9 +68,9 @@ public class DataLoggerClient implements Runnable {
                 if(negativeDelta.isNegative()) {
 
                     long millis = -1 * negativeDelta.toMillis();
-                    int nanos = -1 * (int)negativeDelta.plusMillis(millis).toNanos();
+                    int nanos = Math.max(0, -1 * (int)negativeDelta.plusMillis(millis).toNanos());
 
-                    System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
+                    System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentSensor.getLabel());
                     try {
                         Thread.sleep(millis, nanos);
                     } catch (InterruptedException e) {
@@ -76,10 +78,10 @@ public class DataLoggerClient implements Runnable {
                     }
                 }
                 else
-                    System.out.println("    wait " + 0 + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
+                    System.out.println("    wait " + 0 + " nanos for sensor " + currentSensor.getLabel());
 
                 // get updated value
-                outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentComparableSensor.sensor().getCurrent(currentComparableSensor.rType()));
+                outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent());
 
                 // re-enqueue sensor for next update
                 sensorQueue.add(currentComparableSensor);

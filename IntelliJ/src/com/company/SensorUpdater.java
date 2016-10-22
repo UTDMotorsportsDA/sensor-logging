@@ -18,12 +18,6 @@ public abstract class SensorUpdater implements Runnable {
         this.ownerLogger = logger;
     }
 
-    public SensorUpdater(DataLoggerClient logger, Sensor[] sensors) {
-        this(logger);
-        for(Sensor s : sensors)
-            sensorQueue.add(s.asComparable(RefreshType.VALUE_UPDATE));
-    }
-
     // returns true if sensor is accepted and added, false otherwise
     public abstract boolean addSensor(Sensor s);
 

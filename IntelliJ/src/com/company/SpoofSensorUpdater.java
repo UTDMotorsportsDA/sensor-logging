@@ -9,13 +9,17 @@ import java.time.Instant;
 public class SpoofSensorUpdater extends SensorUpdater {
     public SpoofSensorUpdater(DataLoggerClient logger) { super(logger); }
     public SpoofSensorUpdater(DataLoggerClient logger, Sensor[] sensors) {
-        super(logger, sensors);
+        super(logger);
+        for(Sensor s : sensors)
+            addSensor(s);
     }
 
+    // add a sensor only if it fits the updater's type,
+    // return false if and only if the sensor is of the wrong type
     @Override
     public boolean addSensor(Sensor s) {
         if(s instanceof SpoofSensor) {
-            sensorQueue.add(s.asComparable(RefreshType.PIT));
+            sensorQueue.add(s.asComparable(RefreshType.VALUE_UPDATE));
             return true;
         }
 
@@ -27,6 +31,7 @@ public class SpoofSensorUpdater extends SensorUpdater {
         while(!done) {
             // retrieve next sensor from queue
             ComparableSensor currentComparableSensor = sensorQueue.poll();
+            Sensor currentSensor = currentComparableSensor.sensor();
 
             // wait until instant of update
             Duration negativeDelta = Duration.between(currentComparableSensor.nextRefresh(), Instant.now());
@@ -42,11 +47,11 @@ public class SpoofSensorUpdater extends SensorUpdater {
             }
 
             // update sensor
-            if(currentComparableSensor.sensor().refresh()) {
-                System.out.println("sensor " + currentComparableSensor.sensor().getLabel() + " critical");
+            if(currentSensor.refresh()) {
+                System.out.println("sensor " + currentSensor.getLabel() + " critical (" + currentSensor.peekCurrent());
 
                 // sensor's critical state has changed, renew in client logger
-                ownerLogger.renewSensor(currentComparableSensor.sensor());
+                ownerLogger.renewSensor(currentSensor);
             }
 
             // re-enqueue
@@ -54,34 +59,3 @@ public class SpoofSensorUpdater extends SensorUpdater {
         }
     }
 }
-
-/*
-            while(!done) {
-                // retrieve a sensor from which to read out of the queue
-                ComparableSensor currentComparableSensor = sensorQueue.poll();
-                Sensor currentSensor = currentComparableSensor.sensor();
-
-                // wait until time to update
-                Duration negativeDelta = Duration.between(currentComparableSensor.nextRefresh(), Instant.now());
-                if(negativeDelta.isNegative()) {
-
-                    long millis = -1 * negativeDelta.toMillis();
-                    int nanos = -1 * (int)negativeDelta.plusMillis(millis).toNanos();
-
-                    System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
-                    try {
-                        Thread.sleep(millis, nanos);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else
-                    System.out.println("    wait " + 0 + " nanos for sensor " + currentComparableSensor.sensor().getLabel());
-
-                // get updated value
-                outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentComparableSensor.sensor().getCurrent(currentComparableSensor.rType()));
-
-                // re-enqueue sensor for next update
-                sensorQueue.add(currentComparableSensor);
-            }
- */

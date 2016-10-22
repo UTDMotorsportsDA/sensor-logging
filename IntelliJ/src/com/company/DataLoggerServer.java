@@ -29,7 +29,6 @@ public class DataLoggerServer implements Runnable {
         // open a listening socket, wait for client, open a client socket
         try(ServerSocket serverSocket = new ServerSocket(port);
             Socket clientSocket = serverSocket.accept();) {
-//            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
             in = new Scanner(clientSocket.getInputStream());
 
@@ -37,8 +36,6 @@ public class DataLoggerServer implements Runnable {
 
             // print any information from the socket
             while(!done) {
-//                if(in.ready())
-//                    System.out.println(in.readLine());
                 System.out.println(in.next());
             }
 

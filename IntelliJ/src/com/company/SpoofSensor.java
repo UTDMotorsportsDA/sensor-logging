@@ -19,8 +19,7 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     }
 
     public SpoofSensor(String label, Duration[] timesBetweenUpdates, float criticalThreshold) {
-        super(label);
-        this.refreshPeriods = timesBetweenUpdates.clone();
+        super(label, timesBetweenUpdates);
         this.criticalThreshold = criticalThreshold;
     }
 
@@ -28,7 +27,10 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     public synchronized boolean refresh() {
         boolean wasCritical = critical;
 
-        currentValue += ((float)Math.random() - 0.5f) * 5.f;
+        // random fluctuation
+        currentValue += (float)Math.random() - 0.5f;
+        // 1% chance of large fluctuation
+        if(Math.random() < 0.01f) currentValue += ((float)Math.random() - 0.5f) * 10.f;
         lastRefreshes[0] = Instant.now();
 
         if((critical = checkCritical(currentValue)) == wasCritical)
@@ -38,23 +40,14 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     }
 
     @Override
-    public synchronized String getCurrent(RefreshType r) {
-        switch (r) {
-            case PIT:
-                lastRefreshes[1] = Instant.now();
-                break;
-            case DRIVER:
-                lastRefreshes[2] = Instant.now();
-                break;
-            default: // don't return a value for value_updates
-                return "";
-        }
-        return String.valueOf(currentValue);
+    public synchronized String getCurrent() {
+        // consider this a refresh of pit data
+        lastRefreshes[1] = Instant.now();
+        return peekCurrent();
     }
 
     @Override
-    public synchronized String getRefreshed(RefreshType r) {
-        refresh();
-        return getCurrent(r);
+    public synchronized String peekCurrent() {
+        return String.valueOf(currentValue);
     }
 }
