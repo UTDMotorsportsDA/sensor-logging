@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public final class ConfigLoader {
         iterateProperties:
         while(e.hasMoreElements()) {
             String sensorName = (String)e.nextElement();
-            String[] parameters = props.getProperty(sensorName).split(", ");
+            String[] parameters = props.getProperty(sensorName).split(", *");
             Duration[] refreshPeriods = new Duration[3];
 
             // validate parameter count
@@ -52,7 +53,7 @@ public final class ConfigLoader {
                 case "Spoof":
                     try {
                         sensors.add(new SpoofSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4])));
-                    } catch(NumberFormatException e) {
+                    } catch(NumberFormatException ex) {
                         System.err.println("config.properties error (" + sensorName + "): incorrect duration formatting (float value expected)");
                         continue iterateProperties;
                     }

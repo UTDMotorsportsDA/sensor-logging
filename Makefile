@@ -5,6 +5,6 @@ clean:
 	rm IntelliJ/src/com/company/*.class
 
 stage:
-	git add IntelliJ/src/com/company/*.java
+	git add IntelliJ/src/com/company/
 	git add Makefile
 	git status

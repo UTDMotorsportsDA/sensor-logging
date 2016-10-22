@@ -1,6 +1,5 @@
 package com.company;
 
-import java.time.Duration;
 import java.util.Scanner;
 
 /**
@@ -11,13 +10,11 @@ public class ClientMain {
         // communication parameters
         final String SERVER_IP = args[0];
         final int SERVER_PORT = Integer.parseInt(args[1]);
+        Scanner stdin = new Scanner(System.in);
+        String input;
 
         // example sensors
-        Sensor[] sensors = {
-                new SpoofSensor("2", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(2), Duration.ofMillis(100)}, 200.f),
-                new SpoofSensor("3", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(3), Duration.ofMillis(300)}, 100.f),
-                new SpoofSensor("5", new Duration[] {Duration.ofMillis(10), Duration.ofSeconds(5), Duration.ofMillis(500)}, 800.f)
-        };
+        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[2]);
 
         // client to collect and transmit data, server to receive data
         DataLoggerClient client = new DataLoggerClient(SERVER_IP, SERVER_PORT, sensors);
@@ -25,8 +22,9 @@ public class ClientMain {
         // run logger on a thread to allow additional tasks
         new Thread(client).start();
 
-        // wait for some user input before ending
-        new Scanner(System.in).next();
+        // handle keyboard input and quit if needed
+        while(!(input = stdin.next()).equals("quit"))
+            InputHandler.toggleCriticalState(input.charAt(0), sensors);
 
         // quit
         client.end();

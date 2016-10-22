@@ -35,8 +35,7 @@ public class DataLoggerClient implements Runnable {
     // removes sensor if possible and adds; different from requeueComparableSensor
     public synchronized void renewSensor(Sensor s) {
         // if sensor is in queue, remove
-        if(!sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE)))
-            System.out.println("unable to remove sensor, sensorQueue.size() = " + sensorQueue.size());
+        sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE));
 
         // add sensor to queue (if sensor was in queue, moves it to the new update period)
         sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
@@ -87,15 +86,12 @@ public class DataLoggerClient implements Runnable {
                     long millis = -1 * negativeDelta.toMillis();
                     int nanos = Math.max(0, -1 * (int)negativeDelta.plusMillis(millis).toNanos());
 
-                    System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentSensor.getLabel());
                     try {
                         Thread.sleep(millis, nanos);
                     } catch (InterruptedException e) {
-                        System.out.println("wait period interrupted");
+                        // skip the rest of waiting for the next sensor reading, some critical state has changed
                     }
                 }
-                else
-                    System.out.println("    wait " + 0 + " nanos for sensor " + currentSensor.getLabel());
 
                 // get and send updated value
                 outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent());
