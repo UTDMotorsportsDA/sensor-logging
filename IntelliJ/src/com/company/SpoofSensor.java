@@ -8,7 +8,7 @@ import java.time.Instant;
  */
 public class SpoofSensor extends Sensor { // fake sensor data for testing
 
-    private float currentValue;
+    private float currentValue = 40.f;
     private float criticalThreshold;
 
     private boolean checkCritical(float newValue) {
@@ -28,7 +28,7 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     public synchronized boolean refresh() {
         boolean wasCritical = critical;
 
-        currentValue = (float)Math.random() * 100.f;
+        currentValue += ((float)Math.random() - 0.5f) * 5.f;
         lastRefreshes[0] = Instant.now();
 
         if((critical = checkCritical(currentValue)) == wasCritical)

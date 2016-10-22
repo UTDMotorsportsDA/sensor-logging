@@ -18,7 +18,7 @@ public class DataLoggerClient implements Runnable {
 
     private String server = null;
     private int port = 0;
-    private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<>();
+    private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<ComparableSensor>();
     boolean done = false;
     // DataLoggerClient is solely intended to report to the pit (either immediately or to a file for later)
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
@@ -42,6 +42,14 @@ public class DataLoggerClient implements Runnable {
 
     @Override
     public void run() {
+        // start the sensor update thread
+        SensorUpdater updater0 = new SpoofSensorUpdater(this);
+        ComparableSensor[] allComparableSensors = new ComparableSensor[sensorQueue.size()];
+        for(ComparableSensor cs : allComparableSensors)
+            updater0.addSensor(cs.sensor());
+        Thread updater0Thread = new Thread(updater0);
+        updater0Thread.start();
+
         // open a socket and writer to send data to the server
         try(Socket outgoingSocket = new Socket(server, port);
             PrintWriter outgoingWriter = new PrintWriter(outgoingSocket.getOutputStream(), true);) {
@@ -78,7 +86,14 @@ public class DataLoggerClient implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                updater0Thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     // allow client to finish
