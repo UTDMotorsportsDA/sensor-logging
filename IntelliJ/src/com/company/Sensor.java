@@ -21,8 +21,16 @@ public abstract class Sensor {
         this.name = label;
         if(timesBetweenUpdates.length != 3)
             throw new IllegalArgumentException("all sensors need 3 refresh periods (see Sensor.java)");
-        else
+        else {
             this.refreshPeriods = timesBetweenUpdates.clone();
+
+            // no reporting updates may exceed the speed of value updates
+            if(refreshPeriods[1].compareTo(refreshPeriods[0]) < 0)
+                refreshPeriods[1] = refreshPeriods[0];
+            if(refreshPeriods[2].compareTo(refreshPeriods[0]) < 0)
+                refreshPeriods[2] = refreshPeriods[0];
+        }
+
     }
 
     public String getLabel() { return name; }
@@ -53,4 +61,9 @@ public abstract class Sensor {
     public abstract boolean refresh(); // update current value, return whether 'critical' has changed
     public abstract String getCurrent(); // return current value
     public abstract String peekCurrent(); // look at current value without causing refresh
+
+    @Override
+    public String toString() {
+        return name + ": " + refreshPeriods[0].toMillis() + " ms update, " + refreshPeriods[1].toMillis() + " ms nominal logging, " + refreshPeriods[2].toMillis() + " ms critical logging";
+    }
 }
