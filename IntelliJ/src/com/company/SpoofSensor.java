@@ -30,7 +30,7 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
         // random fluctuation
         currentValue += (float)Math.random() - 0.5f;
         // 1% chance of large fluctuation
-        if(Math.random() < 0.01f) currentValue += ((float)Math.random() - 0.5f) * 10.f;
+        if(Math.random() < 0.05f) currentValue += (float)Math.random() * 30.f * (isCritical() ? -1 : 1);
         lastRefreshes[0] = Instant.now();
 
         if((critical = checkCritical(currentValue)) == wasCritical)

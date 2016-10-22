@@ -35,7 +35,8 @@ public class DataLoggerClient implements Runnable {
     // intended to inform this instance of a new update interval immediately
     public void renewSensor(Sensor s) {
         // if sensor is in queue, remove
-        sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE));
+        if(!sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE)))
+            System.out.println("unable to remove sensor, sensorQueue.size() = " + sensorQueue.size());
 
         // add sensor to queue (if sensor was in queue, moves it to the new update period)
         sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
@@ -60,7 +61,7 @@ public class DataLoggerClient implements Runnable {
 
             while(!done) {
                 // retrieve a sensor from which to read out of the queue
-                ComparableSensor currentComparableSensor = sensorQueue.poll();
+                ComparableSensor currentComparableSensor = sensorQueue.peek();
                 Sensor currentSensor = currentComparableSensor.sensor();
 
                 // wait until time to update
@@ -72,7 +73,7 @@ public class DataLoggerClient implements Runnable {
 
                     System.out.println("    wait " + millis + " millis, " + nanos + " nanos for sensor " + currentSensor.getLabel());
                     try {
-                        Thread.sleep(millis, nanos);
+                        Thread.sleep(millis, nanos); // work out interrupting the main thread if updater finds critical sensor
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -84,12 +85,16 @@ public class DataLoggerClient implements Runnable {
                 outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent());
 
                 // re-enqueue sensor for next update
+                // unless already enqueued by a critical state change
+                ... // roll some syncing code with sensorQueue.contains(), sensorQueue.peek(),
+                ... // sensorQueue.remove(), sensorQueue.add(), and a synchronized accessor
                 sensorQueue.add(currentComparableSensor);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
+                updater0.end();
                 updater0Thread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();

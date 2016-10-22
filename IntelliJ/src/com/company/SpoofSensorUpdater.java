@@ -48,7 +48,7 @@ public class SpoofSensorUpdater extends SensorUpdater {
 
             // update sensor
             if(currentSensor.refresh()) {
-                System.out.println("sensor " + currentSensor.getLabel() + " critical (" + currentSensor.peekCurrent());
+                System.out.println("sensor " + currentSensor.getLabel() + " critical state change (" + currentSensor.peekCurrent() + ")");
 
                 // sensor's critical state has changed, renew in client logger
                 ownerLogger.renewSensor(currentSensor);
