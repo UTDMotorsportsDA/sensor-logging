@@ -54,7 +54,8 @@ public class SpoofSensorUpdater extends SensorUpdater {
                 ownerLogger.renewSensor(currentSensor);
             }
 
-            // re-enqueue
+            // re-enqueue (updater's queue is never subject to
+            // noticeable outside interference)
             sensorQueue.add(currentComparableSensor);
         }
     }

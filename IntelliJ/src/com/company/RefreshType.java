@@ -5,6 +5,5 @@ package com.company;
  */
 public enum RefreshType {
     VALUE_UPDATE,
-    PIT,
-    DRIVER
+    PIT
 }

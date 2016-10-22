@@ -1,8 +1,8 @@
 all:
-	javac com/company/*.java
+	javac src/com/company/*.java -d IntelliJ/out/production/IntelliJ
 
 clean:
-	mv IntelliJ/src/com/company/*.class IntelliJ/out/production/IntelliJ/com/company/	
+	rm IntelliJ/src/com/company/*.class
 
 stage:
 	git add IntelliJ/src/com/company/*.java
