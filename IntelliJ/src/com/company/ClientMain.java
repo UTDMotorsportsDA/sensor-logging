@@ -24,7 +24,12 @@ public class ClientMain {
 
         // handle keyboard input and quit if needed
         while(!(input = stdin.next()).equals("quit"))
-            InputHandler.toggleCriticalState(input.charAt(0), sensors);
+            if(input.charAt(0) == 'o')
+                InputHandler.ohShit(sensors);
+            else if(input.charAt(0) == 'z')
+                InputHandler.zzz(sensors);
+            else
+                InputHandler.toggleCriticalState(input.charAt(0), sensors);
 
         // quit
         client.end();

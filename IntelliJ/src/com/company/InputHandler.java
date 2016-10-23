@@ -17,6 +17,16 @@ public final class InputHandler {
         return null;
     }
 
+    public static void ohShit(Sensor[] sensors) {
+        for(Sensor s : sensors)
+            s.critical = true;
+    }
+
+    public static void zzz(Sensor[] sensors) {
+        for(Sensor s : sensors)
+            s.critical = false;
+    }
+
     public static void toggleCriticalState(char c, Sensor[] sensors) {
         try {
             switch (c) {
