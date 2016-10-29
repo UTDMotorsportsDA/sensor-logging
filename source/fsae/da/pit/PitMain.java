@@ -1,6 +1,8 @@
+package fsae.da.pit;
+
 import java.util.Scanner;
 
-public class ServerMain {
+public class PitMain {
     public static void main(String[] args) {
         // server needs only a listening port
         final int SERVER_PORT = Integer.parseInt(args[0]);

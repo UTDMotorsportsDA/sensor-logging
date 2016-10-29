@@ -1,3 +1,5 @@
+package fsae.da.car;
+
 import java.util.concurrent.PriorityBlockingQueue;
 
 public abstract class SensorUpdater implements Runnable {

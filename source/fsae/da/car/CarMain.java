@@ -1,6 +1,8 @@
+package fsae.da.car;
+
 import java.util.Scanner;
 
-public class ClientMain {
+public class CarMain {
     public static void main(String[] args) {
         // communication parameters
         final String SERVER_IP = args[0];

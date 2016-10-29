@@ -1,3 +1,5 @@
+package fsae.da.car;
+
 import java.time.Instant;
 
 class ComparableSensor implements Comparable<ComparableSensor> {

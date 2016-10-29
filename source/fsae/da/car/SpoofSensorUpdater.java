@@ -1,3 +1,5 @@
+package fsae.da.car;
+
 import java.time.Duration;
 import java.time.Instant;
 
