@@ -1,4 +1,2 @@
-add sensor critical threshold
-abstract DataLoggerClient to writing to indiscriminate output stream (mainly for file and socket I/O)
-write DataLoggerClient and SensorUpdater into children of a single class (similar behavior and purpose)
-    write DataLoggerClient and file logger as children of a child of aforementioned parent (recording behavior goes beyond value updates)
+* switch to UDP
+* add timestamps

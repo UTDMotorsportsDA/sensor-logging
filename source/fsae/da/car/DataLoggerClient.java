@@ -2,7 +2,8 @@ package fsae.da.car;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Queue;
@@ -10,16 +11,16 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class DataLoggerClient implements Runnable {
 
-    private String server = null;
+    private InetAddress broadcastAddress = null;
     private int port = 0;
     private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<ComparableSensor>();
     boolean done = false;
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
 
-    public DataLoggerClient(String serverHostname, int serverPort, Sensor[] sensors) {
-        server = serverHostname;
-        port = serverPort;
+    public DataLoggerClient(String broadcastIP, int commPort, Sensor[] sensors) throws UnknownHostException {
+        this.broadcastAddress = InetAddress.getByName(broadcastIP);
+        port = commPort;
 
         // wrap sensors in objects that implement
         // Comparable for the priority queue
@@ -66,8 +67,7 @@ public class DataLoggerClient implements Runnable {
         updater0Thread.start();
 
         // open a socket and writer to send data to the server
-        try(Socket outgoingSocket = new Socket(server, port);
-            PrintWriter outgoingWriter = new PrintWriter(outgoingSocket.getOutputStream(), true);) {
+        try(DatagramSocket broadcastSocket = new DatagramSocket(port, broadcastAddress)) {
 
             System.out.println("Client is up.");
 
@@ -90,8 +90,11 @@ public class DataLoggerClient implements Runnable {
                     }
                 }
 
-                // get and send updated value
-                outgoingWriter.println(currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent());
+                // convert a formatted data point string into an equivalent ascii byte array
+                byte[] dataBytes = (currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent()).getBytes(StandardCharsets.US_ASCII);
+                broadcastSocket.send(
+                        new DatagramPacket(dataBytes, dataBytes.length, broadcastAddress, port)
+                );
 
                 // re-enqueue sensor for next update
                 requeueComparableSensor(currentComparableSensor);

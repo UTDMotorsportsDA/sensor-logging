@@ -1,5 +1,6 @@
 package fsae.da.car;
 
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class CarMain {
@@ -14,7 +15,13 @@ public class CarMain {
         Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[2]);
 
         // client to collect and transmit data, server to receive data
-        DataLoggerClient client = new DataLoggerClient(SERVER_IP, SERVER_PORT, sensors);
+        DataLoggerClient client = null;
+        try {
+            client = new DataLoggerClient(SERVER_IP, SERVER_PORT, sensors);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return;
+        }
 
         // run logger on a thread to allow additional tasks
         new Thread(client).start();
