@@ -1,10 +1,5 @@
-package com.company;
-
 import java.time.Duration;
 
-/**
- * Created by brian on 10/22/16.
- */
 public final class InputHandler {
     // no instantiation allowed
     private InputHandler() { }

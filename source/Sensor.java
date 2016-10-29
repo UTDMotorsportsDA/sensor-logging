@@ -1,11 +1,6 @@
-package com.company;
-
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Created by brian on 10/16/16.
- */
 public abstract class Sensor {
     protected String name = null;
     protected boolean critical = false;

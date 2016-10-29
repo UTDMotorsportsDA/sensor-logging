@@ -1,10 +1,5 @@
-package com.company;
-
 import java.util.Scanner;
 
-/**
- * Created by brian on 10/17/16.
- */
 public class ClientMain {
     public static void main(String[] args) {
         // communication parameters

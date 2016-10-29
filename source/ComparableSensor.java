@@ -1,10 +1,5 @@
-package com.company;
-
 import java.time.Instant;
 
-/**
- * Created by brian on 10/18/16.
- */
 class ComparableSensor implements Comparable<ComparableSensor> {
     private Sensor s = null;
     private RefreshType refresh = null;

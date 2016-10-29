@@ -1,5 +1,3 @@
-package com.company;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -8,9 +6,6 @@ import java.time.Instant;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-/**
- * Created by brian on 10/16/16.
- */
 public class DataLoggerClient implements Runnable {
 
     private String server = null;

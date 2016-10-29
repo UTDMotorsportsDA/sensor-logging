@@ -1,11 +1,6 @@
-package com.company;
-
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Created by brian on 10/19/16.
- */
 public class SpoofSensorUpdater extends SensorUpdater {
     public SpoofSensorUpdater(DataLoggerClient logger) { super(logger); }
     public SpoofSensorUpdater(DataLoggerClient logger, Sensor[] sensors) {

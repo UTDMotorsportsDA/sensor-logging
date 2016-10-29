@@ -1,10 +1,5 @@
-package com.company;
-
 import java.util.concurrent.PriorityBlockingQueue;
 
-/**
- * Created by brian on 10/18/16.
- */
 public abstract class SensorUpdater implements Runnable {
 
     protected DataLoggerClient ownerLogger = null;

@@ -1,13 +1,8 @@
-package com.company;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
-/**
- * Created by brian on 10/16/16.
- */
 public class DataLoggerServer implements Runnable {
 
     // desired port

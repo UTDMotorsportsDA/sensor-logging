@@ -1,10 +1,7 @@
 all:
-	javac src/com/company/*.java -d IntelliJ/out/production/IntelliJ
-
-clean:
-	rm IntelliJ/src/com/company/*.class
+	javac source/pit/*.java -d out/pit/*.java
+	javac source/car/*.java -d out/car/*.java
 
 stage:
-	git add IntelliJ/src/com/company/
-	git add Makefile
+	git add source run.sh config Makefile README.md
 	git status

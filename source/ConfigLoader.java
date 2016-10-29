@@ -1,5 +1,3 @@
-package com.company;
-
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 
-/**
- * Created by brian on 10/22/16.
- */
 public final class ConfigLoader {
     public static Sensor[] getSensorsFromFile(String filename) {
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
