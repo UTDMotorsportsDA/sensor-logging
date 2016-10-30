@@ -1,9 +1,9 @@
 package fsae.da.pit;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Scanner;
+import java.net.DatagramPacket;
+import java.net.MulticastSocket;
+import java.nio.charset.StandardCharsets;
 
 public class DataLoggerServer implements Runnable {
 
@@ -13,7 +13,8 @@ public class DataLoggerServer implements Runnable {
     // completion condition (allow server to quit)
     private boolean done = false;
 
-    private Scanner in = null;
+    // UDP resources
+    private MulticastSocket receiveSocket = null;
 
     public DataLoggerServer(int port) {
         this.port = port;
@@ -21,29 +22,29 @@ public class DataLoggerServer implements Runnable {
 
     @Override
     public void run() {
-        // open a listening socket, wait for client, open a client socket
-        try(ServerSocket serverSocket = new ServerSocket(port);
-            Socket clientSocket = serverSocket.accept();) {
+        try {
+            // create resources for receiving broadcast packets
+            // note: every single UDP packet received by the machine can come here
+            receiveSocket = new MulticastSocket(port);
+            DatagramPacket pkt = new DatagramPacket(new byte[1024], 1024);
 
-            in = new Scanner(clientSocket.getInputStream());
+            System.out.println("Server is up");
 
-            System.out.println("Server is up.");
-
-            // print any information from the socket
             while(!done) {
-                if(in.hasNext())
-                    System.out.println(in.next());
-                else
-                    Thread.sleep(500);
+                // wait to get a packet from the broadcast group
+                receiveSocket.receive(pkt);
+
+                // convert packet back into a string
+                String dataPoint = new String(pkt.getData(), 0, pkt.getLength(), StandardCharsets.US_ASCII);
+
+                // dump data to the console
+                System.out.println(dataPoint);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
-    // allow server to quit
-    public void end() { done = true; if(in != null) in.close(); }
+      public void end() { done = true; receiveSocket.close(); }
 }

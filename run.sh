@@ -2,7 +2,7 @@
 
 BROADCAST_IP=127.0.0.1
 COMM_PORT=2016
-SENSOR_CONFIG_FILE=../config/sensor_config.properties
+SENSOR_CONFIG_FILE=config/sensor_config.properties
 
 if [ $# -lt 1 ]; then
 	echo "specify a run target like car, pit, or sim";
@@ -10,29 +10,41 @@ if [ $# -lt 1 ]; then
 fi
 
 if [ $1 == "pit" ]; then
-	if [ $# -lt 2 ]; then
-		echo "please specify pit port"
-		exit 0
+	if [ $# -gt 1 ]; then
+		COMM_PORT=$2
 	fi
-	cd out
-	sudo java fsae.da.pit.PitMain $2
-	cd ..
+	sudo java -cp out fsae.da.pit.PitMain $COMM_PORT
+
 elif [ $1 == "car" ]; then
-	# if [ $# -lt 2 ]; then
-	# 	echo "please specify pit IP, port, and sensor config file"
-	# 	exit 0
-	# fi
-	cd out
-	# java fsae.da.car.CarMain $2 $3 $4
-	java fsae.da.car.CarMain $BROADCAST_IP $COMM_PORT $SENSOR_CONFIG_FILE
-	cd ..
-elif [ $1 == "sim" ]; then
-	if [ $# -lt 4 ]; then
-		echo "please specify pit IP, port, and sensor config file"
-		exit 0
+
+	if [[ $# -gt 1 ]]; then
+		BROADCAST_IP=$2
 	fi
-	x-terminal-emulator --working-directory=./out -e "java fsae.da.car.CarMain $2 $3 $4"
-	x-terminal-emulator --working-directory=./out -e "sudo java fsae.da.pit.PitMain $3"
+	if [[ $# -gt 2 ]]; then
+		COMM_PORT=$3
+	fi
+	if [[ $# -gt 3 ]]; then
+		SENSOR_CONFIG_FILE=$4
+	fi
+
+	java -cp out fsae.da.car.CarMain $BROADCAST_IP $COMM_PORT $SENSOR_CONFIG_FILE
+
+elif [ $1 == "sim" ]; then
+
+	if [[ $# -gt 1 ]]; then
+		BROADCAST_IP=$2
+	fi
+	if [[ $# -gt 2 ]]; then
+		COMM_PORT=$3
+	fi
+	if [[ $# -gt 3 ]]; then
+		SENSOR_CONFIG_FILE=$4
+	fi
+
+	x-terminal-emulator --working-directory=. -e "java -cp out fsae.da.car.CarMain $BROADCAST_IP $COMM_PORT $SENSOR_CONFIG_FILE"
+	x-terminal-emulator --working-directory=. -e "sudo -cp out java fsae.da.pit.PitMain $COMM_PORT"
+
 else
 	echo "specify a run target like car, pit, or sim"
+
 fi

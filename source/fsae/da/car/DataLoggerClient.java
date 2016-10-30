@@ -1,8 +1,10 @@
 package fsae.da.car;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -66,8 +68,8 @@ public class DataLoggerClient implements Runnable {
         Thread updater0Thread = new Thread(updater0);
         updater0Thread.start();
 
-        // open a socket and writer to send data to the server
-        try(DatagramSocket broadcastSocket = new DatagramSocket(port, broadcastAddress)) {
+        // open a socket for broadcasting data
+        try(DatagramSocket broadcastSocket = new DatagramSocket()) {
 
             System.out.println("Client is up.");
 
