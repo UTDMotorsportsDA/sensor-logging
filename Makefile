@@ -15,6 +15,7 @@ native:
 
 stage:
 	git add -A
+	git reset HEAD out JNI/lib
 	git status
 
 clean:
