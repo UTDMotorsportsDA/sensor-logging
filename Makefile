@@ -1,13 +1,20 @@
-all:
-	javac source/fsae/da/pit/*.java source/fsae/da/car/*.java -d out/
+C_COMPILER=arm-linux-gnueabihf-gcc
+NATIVE_SOURCE_DIR=JNI/src
+NATIVE_OBJ_DIR=JNI/lib
+
+all: pit car native
+	
+pit:
+	javac source/fsae/da/pit/*.java -d out
+
+car: native
+	javac source/fsae/da/car/*.java -d out/
 
 native:
-	cd JNI
-	gcc fsae_da_car_I2CSensor.c -shared -c -I $JAVA_HOME/include -I $JAVA_HOME/include/linux -o libI2CSensor.so
-	cd ..
+	$(C_COMPILER) -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -shared -fPIC -o $(NATIVE_OBJ_DIR)/libnativei2c.so $(NATIVE_SOURCE_DIR)/NativeI2C.c
 
 stage:
-	git add source run.sh config Makefile README.md etc
+	git add -A
 	git status
 
 clean:
