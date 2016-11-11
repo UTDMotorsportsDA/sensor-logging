@@ -56,11 +56,11 @@ public abstract class Sensor {
         return lastRefreshes[typeOffset].plus(refreshPeriods[(typeOffset == 0) ? 0 : (typeOffset + (isCritical() ? 1 : 0))]);
     }
     public abstract boolean refresh(); // update current value, return whether 'critical' has changed
-    public abstract String getCurrent(); // return current value
     public abstract String peekCurrent(); // look at current value without causing refresh
 
-    @Override
-    public String toString() {
-        return name + ": " + refreshPeriods[0].toMillis() + " ms update, " + refreshPeriods[1].toMillis() + " ms nominal logging, " + refreshPeriods[2].toMillis() + " ms critical logging";
+    // return current value and log update time
+    public String getCurrent() {
+        lastRefreshes[1] = Instant.now();
+        return peekCurrent();
     }
 }

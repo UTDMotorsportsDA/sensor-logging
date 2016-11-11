@@ -1,6 +1,7 @@
 package fsae.da.car;
 
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.Scanner;
 
 public class CarMain {
@@ -12,7 +13,9 @@ public class CarMain {
         String input;
 
         // example sensors
-        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[2]);
+        Duration[] accelerationDurations = { Duration.ofMillis(10), Duration.ofMillis(50), Duration.ofMillis(50) };
+        Sensor[] sensors = { new LSM303AccelerationSensor("acceleration", accelerationDurations, 2) };
+//        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[2]);
 
         // client to collect and transmit data, server to receive data
         DataLoggerClient client = null;
@@ -26,14 +29,8 @@ public class CarMain {
         // run logger on a thread to allow additional tasks
         new Thread(client).start();
 
-        // handle keyboard input and quit if needed
-        while(!(input = stdin.next()).equals("quit"))
-            if(input.charAt(0) == 'o')
-                InputHandler.ohShit(sensors);
-            else if(input.charAt(0) == 'z')
-                InputHandler.zzz(sensors);
-            else
-                InputHandler.toggleCriticalState(input.charAt(0), sensors);
+        // wait for user to quit
+        while(Character.toUpperCase(stdin.next().charAt(0)) != 'q');
 
         // quit
         client.end();

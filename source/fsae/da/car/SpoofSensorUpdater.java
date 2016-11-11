@@ -15,12 +15,12 @@ public class SpoofSensorUpdater extends SensorUpdater {
     // return false if and only if the sensor is of the wrong type
     @Override
     public boolean addSensor(Sensor s) {
-        if(s instanceof SpoofSensor) {
+//        if(s instanceof SpoofSensor) {
             sensorQueue.add(s.asComparable(RefreshType.VALUE_UPDATE));
             return true;
-        }
+//        }
 
-        return false;
+//        return false;
     }
 
     @Override

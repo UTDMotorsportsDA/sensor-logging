@@ -22,10 +22,11 @@ public final class NativeI2C {
         return n_write(bytes, numBytes, fd);
     }
 
-    public static synchronized int writeByte(byte data, byte slaveAddress, int deviceNumber) {
+    public static synchronized int writeByte(byte data, byte registerAddress, byte slaveAddress, int deviceNumber) {
         int fd = fileDescriptorOf(deviceNumber);
-        n_setSlave(slaveAddress, deviceNumber);
-        return n_writeByte(data, fd);
+        final byte[] wbuf = {registerAddress, data};
+        n_setSlave(slaveAddress, fd);
+        return n_write(wbuf, 2, fd);
     }
 
     public static synchronized byte[] read(int numBytes, byte startAddress, byte slaveAddress, int deviceNumber) {
@@ -39,7 +40,8 @@ public final class NativeI2C {
 
     public static synchronized int readByte(byte address, byte slaveAddress, int deviceNumber) {
         int fd = fileDescriptorOf(deviceNumber);
-        n_setSlave(slaveAddress, deviceNumber);
+        n_setSlave(slaveAddress, fd);
+        n_writeByte(address, fd);
         return n_readByte(fd);
     }
 
