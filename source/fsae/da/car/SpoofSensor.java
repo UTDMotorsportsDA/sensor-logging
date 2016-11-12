@@ -41,13 +41,6 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     }
 
     @Override
-    public synchronized String getCurrent() {
-        // consider this a refresh of pit data
-        lastRefreshes[1] = Instant.now();
-        return peekCurrent();
-    }
-
-    @Override
     public synchronized String peekCurrent() {
         return String.valueOf(currentValue);
     }

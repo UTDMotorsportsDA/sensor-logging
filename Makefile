@@ -26,7 +26,7 @@ load:
 
 stage:
 	git add -A
-	git reset HEAD out JNI/lib
+	git reset HEAD out JNI/lib logger
 	git status
 
 clean:

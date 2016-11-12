@@ -93,7 +93,7 @@ public class DataLoggerClient implements Runnable {
                 }
 
                 // convert a formatted data point string into an equivalent ascii byte array
-                byte[] dataBytes = (currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent()).getBytes(StandardCharsets.US_ASCII);
+                byte[] dataBytes = (currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent() + "@" + Instant.now().toEpochMilli()).getBytes(StandardCharsets.US_ASCII);
                 broadcastSocket.send(
                         new DatagramPacket(dataBytes, dataBytes.length, broadcastAddress, port)
                 );

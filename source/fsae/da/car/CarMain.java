@@ -10,11 +10,10 @@ public class CarMain {
         final String SERVER_IP = args[0];
         final int SERVER_PORT = Integer.parseInt(args[1]);
         Scanner stdin = new Scanner(System.in);
-        String input;
 
         // example sensors
-        Duration[] accelerationDurations = { Duration.ofMillis(10), Duration.ofMillis(50), Duration.ofMillis(50) };
-        Sensor[] sensors = { new LSM303AccelerationSensor("acceleration", accelerationDurations, 2) };
+        Duration[] accelerationDurations = { Duration.ofMillis(2), Duration.ofMillis(50), Duration.ofMillis(50) };
+        Sensor[] sensors = { new LSM303AccelerationSensor("acceleration", accelerationDurations, 100.f, 2) };
 //        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[2]);
 
         // client to collect and transmit data, server to receive data

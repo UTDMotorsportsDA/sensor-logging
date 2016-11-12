@@ -17,9 +17,14 @@ public abstract class Sensor {
     Sensor(String label, Duration[] timesBetweenUpdates) throws IllegalArgumentException {
         this.name = label;
         if(timesBetweenUpdates.length != 3)
-            throw new IllegalArgumentException("all sensors need 3 refresh periods (see Sensor.java)");
+            throw new IllegalArgumentException("all sensors need 3 refresh periods");
         else {
             this.refreshPeriods = timesBetweenUpdates.clone();
+
+            // ensure positive refresh periods
+            for(Duration d : refreshPeriods)
+                if(d.isNegative())
+                    throw new IllegalArgumentException("refresh periods cannot be negative");
 
             // no reporting updates may exceed the speed of value updates
             if(refreshPeriods[1].compareTo(refreshPeriods[0]) < 0)
@@ -58,7 +63,7 @@ public abstract class Sensor {
     public abstract boolean refresh(); // update current value, return whether 'critical' has changed
     public abstract String peekCurrent(); // look at current value without causing refresh
 
-    // return current value and log update time
+    // return current value and log update time (considered a pit update)
     public String getCurrent() {
         lastRefreshes[1] = Instant.now();
         return peekCurrent();

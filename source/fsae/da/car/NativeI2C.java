@@ -1,5 +1,7 @@
 package fsae.da.car;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,10 +18,16 @@ public final class NativeI2C {
         fdMap = new HashMap<>();
     }
 
-    public static synchronized int write(byte[] bytes, int numBytes, byte slaveAddress, int deviceNumber) {
+    // accept start address as a parameter
+    public static synchronized int write(byte[] bytes, int numBytes, byte registerStartAddress, byte slaveAddress, int deviceNumber) {
         int fd = fileDescriptorOf(deviceNumber);
+        byte[] wbuf = new byte[numBytes + 1];
+
+        wbuf[0] = registerStartAddress;
+        System.arraycopy(bytes, 0, wbuf, 1, numBytes);
+
         n_setSlave(slaveAddress, fd);
-        return n_write(bytes, numBytes, fd);
+        return n_write(wbuf, wbuf.length, fd);
     }
 
     public static synchronized int writeByte(byte data, byte registerAddress, byte slaveAddress, int deviceNumber) {
