@@ -58,6 +58,7 @@ public final class ConfigLoader {
                         continue iterateProperties;
                     }
                     break;
+
                 case "LSM303a":
                     if(parameters.length != 6) {
                         System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (LSM303a type requires exactly 6)");
@@ -69,6 +70,7 @@ public final class ConfigLoader {
                         System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
                         continue iterateProperties;
                     }
+                    break;
 
                 default:
                     System.err.println("config.properties error (" + sensorName + "): " + parameters[0] + " is not a valid sensor type");

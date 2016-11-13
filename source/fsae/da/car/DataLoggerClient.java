@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -15,7 +16,7 @@ public class DataLoggerClient implements Runnable {
 
     private InetAddress broadcastAddress = null;
     private int port = 0;
-    private Queue<ComparableSensor> sensorQueue = new PriorityBlockingQueue<ComparableSensor>();
+    private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
     boolean done = false;
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
@@ -57,16 +58,26 @@ public class DataLoggerClient implements Runnable {
         // grab a handle to this thread
         clientThread = Thread.currentThread();
 
-        // start the sensor update thread
-        SensorUpdater updater0 = new SpoofSensorUpdater(this);
+        // create specific updaters, make the first updater a catch-all
+        SensorUpdater[] updaters = { new SensorUpdater(this),
+                new SpoofSensorUpdater(this) };
 
-        // add every sensor from inside wrapper to the updater
-        for(ComparableSensor cs : sensorQueue.toArray(new ComparableSensor[sensorQueue.size()]))
-            updater0.addSensor(cs.sensor());
+        // add every sensor from inside wrapper to the updaters
+        // if sensor can't be placed in any specific updater, place it in the default
+        // if sensor can't even go in the default updater, log as an error and move on
+        for(ComparableSensor cs : sensorQueue.toArray(new ComparableSensor[sensorQueue.size()])) {
+            int updaterIndex = updaters.length;
+            while(updaterIndex > 0 && !updaters[--updaterIndex].addSensor(cs.sensor()));
+            if(updaterIndex < 0)
+                System.err.println("unable to add sensor \"" + cs.sensor().getLabel() + "\" to any updater");
+        }
 
-        // kick off the updater on a separate thread
-        Thread updater0Thread = new Thread(updater0);
-        updater0Thread.start();
+        // kick off the updaters on separate threads
+        Thread[] updaterThreads = new Thread[updaters.length];
+        for(int i = 0; i < updaters.length; i++) {
+            updaterThreads[i] = new Thread(updaters[i]);
+            updaterThreads[i].start();
+        }
 
         // open a socket for broadcasting data
         try(DatagramSocket broadcastSocket = new DatagramSocket()) {
@@ -78,15 +89,14 @@ public class DataLoggerClient implements Runnable {
                 ComparableSensor currentComparableSensor = sensorQueue.poll();
                 Sensor currentSensor = currentComparableSensor.sensor();
 
-                // wait until time to update
-                Duration negativeDelta = Duration.between(currentComparableSensor.nextRefresh(), Instant.now());
-                if(negativeDelta.isNegative()) {
-
-                    long millis = -1 * negativeDelta.toMillis();
-                    int nanos = Math.max(0, -1 * (int)negativeDelta.plusMillis(millis).toNanos());
+                // wait until moment of update
+                Duration delta = Duration.between(Instant.now(), currentComparableSensor.nextRefresh());
+                if(delta.compareTo(Duration.ZERO) > 0) {
+                    long millisToWait = delta.toMillis();
+                    int nanosToWait = Math.max(0, (int)delta.minusMillis(millisToWait).toNanos());
 
                     try {
-                        Thread.sleep(millis, nanos);
+                        Thread.sleep(millisToWait, nanosToWait);
                     } catch (InterruptedException e) {
                         // skip the rest of waiting for the next sensor reading, some critical state has changed
                     }
@@ -105,9 +115,11 @@ public class DataLoggerClient implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                // temporary: kill the updater and wait for it to end
-                updater0.end();
-                updater0Thread.join();
+                // temporary: kill the updaters and wait for them to end
+                for(SensorUpdater u : updaters)
+                    u.end();
+                for(Thread t : updaterThreads)
+                    t.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

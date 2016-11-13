@@ -10,11 +10,7 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     private boolean wasCritical = false;
 
     private boolean checkCritical(float newValue) {
-        return critical; // only for simulation
-//        if(newValue < criticalThreshold)
-//            return false;
-//        else
-//            return true;
+        return critical; // never to be set critical internally
     }
 
     public SpoofSensor(String label, Duration[] timesBetweenUpdates, float criticalThreshold) {
@@ -25,9 +21,11 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     @Override
     public synchronized boolean refresh() {
         // random fluctuation
-        currentValue += (float)Math.random() - 0.5f;
-//        // 1% chance of large fluctuation
-//        if(Math.random() < 0.005f) currentValue += (float)Math.random() * 30.f * (isCritical() ? -1 : 1);
+        float scale = 1.f;
+        try {
+            scale = (float)Duration.between(Instant.now(), lastRefreshes[0]).toMillis() / 1000.f;
+        } catch(NullPointerException e) {}
+        currentValue += ((float)Math.random() - 0.5f) * scale;
         lastRefreshes[0] = Instant.now();
 
         if((critical = checkCritical(currentValue)) == wasCritical) {
