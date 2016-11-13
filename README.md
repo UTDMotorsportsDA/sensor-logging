@@ -1,5 +1,4 @@
-# fsae_DA
-Data Acquisition software
+#Data Acquisition team software
 
 Use Java version 1.8
 
@@ -11,4 +10,14 @@ Data points will be communicated as UDP DatagramPackets with the following forma
 
 	format of sensor value will depend upon the sensor in question
 
-	timestamp will be formatted as <seconds>:<milliseconds>:<microseconds>
+	timestamp is number of milliseconds since 1/1/1970 according to the sender's system clock
+
+example usage:
+
+    make pit
+    make car
+	export C_COMPILER=gcc
+	make native
+	./run.sh sim
+
+The above will compile source code for simulating on the current machine, then open 2 terminal windows (one for car, one for pit).

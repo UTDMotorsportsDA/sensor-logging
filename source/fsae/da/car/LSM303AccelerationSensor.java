@@ -1,13 +1,11 @@
 package fsae.da.car;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 /**
  * Created by brian on 11/9/16.
  * this implementation is sub-optimal for platform, needs:
  *      critical state sensing
- *      more generalized configuration options
  */
 
 public class LSM303AccelerationSensor extends Sensor {
@@ -37,7 +35,6 @@ public class LSM303AccelerationSensor extends Sensor {
 
     @Override
     public boolean refresh() {
-        short x, y, z;
         byte[] reading = readValue();
 
         // convert from LSM303 register values to SI units

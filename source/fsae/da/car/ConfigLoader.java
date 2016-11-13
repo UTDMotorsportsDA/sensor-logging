@@ -1,6 +1,5 @@
 package fsae.da.car;
 
-import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.util.Properties;
 
 public final class ConfigLoader {
     public static Sensor[] getSensorsFromFile(String filename) {
-        ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+        ArrayList<Sensor> sensors = new ArrayList<>();
         Properties props = new Properties();
 
         // load configuration file
@@ -31,8 +30,8 @@ public final class ConfigLoader {
             Duration[] refreshPeriods = new Duration[3];
 
             // validate parameter count
-            if(parameters.length != 5) {
-                System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (5 expected)");
+            if(parameters.length < 4) {
+                System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (at least 4 needed)");
                 continue iterateProperties;
             }
 
@@ -48,13 +47,29 @@ public final class ConfigLoader {
             // create sensor of specified type and add to arrayList
             switch (parameters[0]) {
                 case "Spoof":
+                    if(parameters.length != 5) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (Spoof type requires exactly 5)");
+                        continue iterateProperties;
+                    }
                     try {
                         sensors.add(new SpoofSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4])));
                     } catch(NumberFormatException ex) {
-                        System.err.println("config.properties error (" + sensorName + "): incorrect duration formatting (float value expected)");
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting (float value expected)");
                         continue iterateProperties;
                     }
                     break;
+                case "LSM303a":
+                    if(parameters.length != 6) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (LSM303a type requires exactly 6)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        sensors.add(new LSM303AccelerationSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4]), Integer.parseInt(parameters[5])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+
                 default:
                     System.err.println("config.properties error (" + sensorName + "): " + parameters[0] + " is not a valid sensor type");
                     continue iterateProperties;

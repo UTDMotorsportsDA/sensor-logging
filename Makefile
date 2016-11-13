@@ -1,4 +1,4 @@
-C_COMPILER=arm-linux-gnueabihf-gcc
+ARM_CROSS_COMPILER=arm-linux-gnueabihf-gcc
 NATIVE_SOURCE_DIR=JNI/src
 NATIVE_OBJ_DIR=JNI/lib
 BEAGLEGBONE_IP=192.168.3.142
@@ -13,6 +13,7 @@ car:
 
 native:
 	javah -jni -cp out -d JNI/src fsae.da.car.NativeI2C
+	if [ -z "$(C_COMPILER)" ]; then C_COMPILER=$(ARM_CROSS_COMPILER); fi
 	$(C_COMPILER) -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -shared -fPIC -o $(NATIVE_OBJ_DIR)/libnativei2c.so $(NATIVE_SOURCE_DIR)/fsae_da_car_NativeI2C.c
 
 load:
@@ -26,7 +27,6 @@ load:
 
 stage:
 	git add -A
-	git reset HEAD out JNI/lib logger
 	git status
 
 clean:
