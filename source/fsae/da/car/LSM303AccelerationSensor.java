@@ -51,7 +51,7 @@ public class LSM303AccelerationSensor extends Sensor {
 
     private void configureOptions(float maxAcceleration, Duration valueRefreshInterval) {
         byte[] lowerConfigVals = new byte[0x26 - 0x20 + 1]; // start register address, ctrl registers from 0x20 to 0x26
-        byte ODR, FS; // default to 1Hz update, +- 2g meas. range
+        byte ODR, FS; // Output Data Rate, Full Scale (range) select
 
         // set the LSM303 to measure at least as fast as the sensor needs to update
         if(valueRefreshInterval.compareTo(Duration.ofSeconds(1)) >= 0) { // 1 Hz

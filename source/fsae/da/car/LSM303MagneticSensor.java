@@ -11,7 +11,7 @@ public class LSM303MagneticSensor extends Sensor {
 
     // x, y, and z values in SI units of meters per second per second
     private float[] currentValue = new float[3];
-    private float conversionScaleFactor = 1.0f;
+    private float conversionScaleFactorXY = 1.0f, conversionScaleFactorZ = 1.0f;
 
     public LSM303MagneticSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
         super(label, timesBetweenUpdates);
@@ -26,13 +26,15 @@ public class LSM303MagneticSensor extends Sensor {
         return NativeI2C.read(bytesPerMeasurement, measurementStartAddress, deviceAddress, busNumber);
     }
 
+    // LSM303 may not use every bit of the low byte, right shift may be necessary
     @Override
     public boolean refresh() {
         byte[] reading = readValue();
 
         // convert from LSM303 register values to SI units
-        for(int i = 0; i < 3; ++i)
-            currentValue[i] = conversionScaleFactor * (short)(((reading[2*i] & 0xff) << 8) | reading[2*i+1] & 0xff);
+        for(int i = 0; i < 2; ++i)
+            currentValue[i] = conversionScaleFactorXY * (short)(((reading[2*i] & 0xff) << 8) | reading[2*i+1] & 0xff);
+        currentValue[2] = conversionScaleFactorZ * (short)(((reading[4] & 0xff) << 8) | reading[5] & 0xff);
 
         return false;
     }
@@ -42,67 +44,89 @@ public class LSM303MagneticSensor extends Sensor {
         return currentValue[0] + "," + currentValue[1] + "," + currentValue[2];
     }
 
-    private void configureOptions(float maxAcceleration, Duration valueRefreshInterval) {
-//        byte[] lowerConfigVals = new byte[0x26 - 0x20 + 1]; // start register address, ctrl registers from 0x20 to 0x26
-//        byte ODR, FS; // default to 1Hz update, +- 2g meas. range
-//
-//        // set the LSM303 to measure at least as fast as the sensor needs to update
-//        if(valueRefreshInterval.compareTo(Duration.ofSeconds(1)) >= 0) { // 1 Hz
-//            ODR = 0x01;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofMillis(100)) >= 0) { // 10 Hz
-//            ODR = 0x02;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofMillis(40)) >= 0) { // 25 Hz
-//            ODR = 0x03;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofMillis(20)) >= 0) { // 50 Hz
-//            ODR = 0x04;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofMillis(10)) >= 0) { // 100 Hz
-//            ODR = 0x05;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofMillis(5)) >= 0) { // 200 Hz
-//            ODR = 0x06;
-//        }
-//        else if(valueRefreshInterval.compareTo(Duration.ofNanos(2500000)) >= 0) { // 400 Hz
-//            ODR = 0x07;
-//        }
-//        else { // 1.344 kHz max (staying in high resolution mode)
-//            ODR = 0x09;
-//            refreshPeriods[0] = Duration.ofNanos(744048); // can't possibly refresh faster than this
-//            if(refreshPeriods[0].compareTo(refreshPeriods[1]) < 0)
-//                refreshPeriods[1] = refreshPeriods[0];
-//            if(refreshPeriods[0].compareTo(refreshPeriods[2]) < 0)
-//                refreshPeriods[2] = refreshPeriods[0];
-//        }
-//
-//        // set the range to at least as wide as the sensor needs to detect
-//        maxAcceleration = Math.abs(maxAcceleration);
-//        if(maxAcceleration <= 2 * ONE_G) {
-//            FS = 0x00;
-//            conversionScaleFactor = 0.001f * ONE_G;
-//        }
-//        else if(maxAcceleration <= 4 * ONE_G) {
-//            FS = 0x01;
-//            conversionScaleFactor = 0.002f * ONE_G;
-//        }
-//        else if(maxAcceleration <= 8 * ONE_G) {
-//            FS = 0x02;
-//            conversionScaleFactor = 0.004f * ONE_G;
-//        }
-//        else { // LSM303 goes up to 16g max measurement
-//            FS = 0x03;
-//            conversionScaleFactor = 0.012f * ONE_G;
-//        }
-//
-//        // set sensor update rate, normal (not low-power) mode, all axes enabled
-//        lowerConfigVals[0] = (byte)(((ODR & 0xff) << 4) | 0x07);
-//
-//        // set sensor range, high resolution mode
-//        lowerConfigVals[3] = (byte)(((FS & 0xff) << 4) | 0x08);
-//
-//        // write determined configuration to sensor
-//        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0xa0, deviceAddress, busNumber);
+    private void configureOptions(float maxField, Duration valueRefreshInterval) {
+        byte[] lowerConfigVals = new byte[0x02 - 0x00 + 1]; // start register address, ctrl registers from 0x00 to 0x02
+        byte DO, GN; // Data Output rate, GaiN configuration
+
+        // set the LSM303 to measure at least as fast as the sensor needs to update
+        if(valueRefreshInterval.compareTo(Duration.ofMillis(1334)) >= 0) { // 0.75 Hz
+            DO = 0x00;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(667)) >= 0) { // 1.5 Hz
+            DO = 0x01;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(334)) >= 0) { // 3.0 Hz
+            DO = 0x02;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(134)) >= 0) { // 7.5 Hz
+            DO = 0x03;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(67)) >= 0) { // 15 Hz
+            DO = 0x04;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(34)) >= 0) { // 30 Hz
+            DO = 0x05;
+        }
+        else if(valueRefreshInterval.compareTo(Duration.ofMillis(14)) >= 0) { // 75 Hz
+            DO = 0x06;
+        }
+        else { // 220 Hz, max sensing rate
+            DO = 0x07;
+            refreshPeriods[0] = Duration.ofNanos(4545455); // can't possibly refresh faster than this
+            if(refreshPeriods[0].compareTo(refreshPeriods[1]) < 0)
+                refreshPeriods[1] = refreshPeriods[0];
+            if(refreshPeriods[0].compareTo(refreshPeriods[2]) < 0)
+                refreshPeriods[2] = refreshPeriods[0];
+        }
+
+        // set the range to at least as wide as the sensor needs to detect
+        maxField = Math.abs(maxField);
+        if(maxField <= 1.3) { // +- 1.3 gauss
+            GN = 0x01;
+            conversionScaleFactorXY = (float)(1.0 / 1100.0);
+            conversionScaleFactorZ = (float)(1.0 / 980.0);
+        }
+        else if(maxField <= 1.9) { // +- 1.9 gauss
+            GN = 0x02;
+            conversionScaleFactorXY = (float)(1.0 / 855.0);
+            conversionScaleFactorZ = (float)(1.0 / 760.0);
+        }
+        else if(maxField <= 2.5) { // +- 2.5 gauss
+            GN = 0x03;
+            conversionScaleFactorXY = (float)(1.0 / 670.0);
+            conversionScaleFactorZ = (float)(1.0 / 600.0);
+        }
+        else if(maxField <= 4.0) { // +- 4.0 gauss
+            GN = 0x04;
+            conversionScaleFactorXY = (float)(1.0 / 450.0);
+            conversionScaleFactorZ = (float)(1.0 / 400.0);
+        }
+        else if(maxField <= 4.7) { // +- 4.7 gauss
+            GN = 0x05;
+            conversionScaleFactorXY = (float)(1.0 / 400.0);
+            conversionScaleFactorZ = (float)(1.0 / 355.0);
+        }
+        else if(maxField <= 5.6) { // +- 5.6 gauss
+            GN = 0x06;
+            conversionScaleFactorXY = (float)(1.0 / 330.0);
+            conversionScaleFactorZ = (float)(1.0 / 295.0);
+        }
+        else { // LSM303 goes up to +- 8.1 gauss max measurement
+            GN = 0x07;
+            conversionScaleFactorXY = (float)(1.0 / 230.0);
+            conversionScaleFactorZ = (float)(1.0 / 205.0);
+        }
+
+        // set sensor update rate
+        lowerConfigVals[0] = (byte)((DO & 0xff) << 2);
+
+        // set sensor range (gain settings)
+        lowerConfigVals[1] = (byte)((GN & 0xff) << 5);
+
+        // continuous-conversion (not sleep) mode
+        lowerConfigVals[2] = 0x00;
+
+        // write determined configuration to sensor
+        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0x00, deviceAddress, busNumber);
     }
 }
