@@ -83,32 +83,32 @@ public class LSM303MagneticSensor extends Sensor {
         // set the range to at least as wide as the sensor needs to detect
         // output is in micro-Tesla
         maxField = Math.abs(maxField);
-        if(maxField <= 1.3) { // +- 1.3 gauss
+        if(maxField <= 130.0) { // +- 1.3 gauss / 130 micro-Tesla
             GN = 0x01;
             conversionScaleFactorXY = (float)(100.0 / 1100.0);
             conversionScaleFactorZ = (float)(100.0 / 980.0);
         }
-        else if(maxField <= 1.9) { // +- 1.9 gauss
+        else if(maxField <= 190.0) { // +- 1.9 gauss / 190 micro-Tesla
             GN = 0x02;
             conversionScaleFactorXY = (float)(100.0 / 855.0);
             conversionScaleFactorZ = (float)(100.0 / 760.0);
         }
-        else if(maxField <= 2.5) { // +- 2.5 gauss
+        else if(maxField <= 250.0) { // +- 2.5 gauss / 250 micro-Tesla
             GN = 0x03;
             conversionScaleFactorXY = (float)(100.0 / 670.0);
             conversionScaleFactorZ = (float)(100.0 / 600.0);
         }
-        else if(maxField <= 4.0) { // +- 4.0 gauss
+        else if(maxField <= 400.0) { // +- 4.0 gauss / 400 micro-Tesla
             GN = 0x04;
             conversionScaleFactorXY = (float)(100.0 / 450.0);
             conversionScaleFactorZ = (float)(100.0 / 400.0);
         }
-        else if(maxField <= 4.7) { // +- 4.7 gauss
+        else if(maxField <= 470.0) { // +- 4.7 gauss / 470 micro-Tesla
             GN = 0x05;
             conversionScaleFactorXY = (float)(100.0 / 400.0);
             conversionScaleFactorZ = (float)(100.0 / 355.0);
         }
-        else if(maxField <= 5.6) { // +- 5.6 gauss
+        else if(maxField <= 560.0) { // +- 5.6 gauss / 560 micro-Tesla
             GN = 0x06;
             conversionScaleFactorXY = (float)(100.0 / 330.0);
             conversionScaleFactorZ = (float)(100.0 / 295.0);
