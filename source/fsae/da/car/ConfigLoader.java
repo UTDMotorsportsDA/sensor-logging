@@ -85,6 +85,19 @@ public final class ConfigLoader {
                     }
                     break;
 
+                case "L3GD20H":
+                    if(parameters.length != 6) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (L3GD20H type requires exactly 6)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        sensors.add(new L3GD20HGyroscopeSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4]), Integer.parseInt(parameters[5])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+                    break;
+
                 default:
                     System.err.println("config.properties error (" + sensorName + "): " + parameters[0] + " is not a valid sensor type");
                     continue iterateProperties;
