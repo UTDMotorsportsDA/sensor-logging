@@ -1,5 +1,7 @@
 package fsae.da.car;
 
+import fsae.da.DataPoint;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,13 +19,15 @@ public class DataLoggerClient implements Runnable {
     private InetAddress broadcastAddress = null;
     private int port = 0;
     private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
+    private Queue<DataPoint> outputQueue;
     boolean done = false;
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
 
-    public DataLoggerClient(String broadcastIP, int commPort, Sensor[] sensors) throws UnknownHostException {
+    public DataLoggerClient(String broadcastIP, int commPort, Sensor[] sensors, Queue<DataPoint> outputQueue) throws UnknownHostException {
         this.broadcastAddress = InetAddress.getByName(broadcastIP);
         port = commPort;
+        this.outputQueue = outputQueue;
 
         // wrap sensors in objects that implement
         // Comparable for the priority queue
@@ -107,6 +111,7 @@ public class DataLoggerClient implements Runnable {
                 broadcastSocket.send(
                         new DatagramPacket(dataBytes, dataBytes.length, broadcastAddress, port)
                 );
+//                outputQueue.add(new DataPoint(currentComparableSensor.sensor().getLabel(), currentComparableSensor.sensor().getCurrent(), Instant.now().toEpochMilli()));
 
                 // re-enqueue sensor for next update
                 requeueComparableSensor(currentComparableSensor);

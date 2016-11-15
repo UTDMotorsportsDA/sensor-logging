@@ -1,7 +1,11 @@
 package fsae.da.car;
 
+import fsae.da.DataPoint;
+
 import java.net.UnknownHostException;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class CarMain {
     public static void main(String[] args) {
@@ -15,8 +19,9 @@ public class CarMain {
 
         // client to collect and transmit data, server to receive data
         DataLoggerClient client = null;
+        Queue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
         try {
-            client = new DataLoggerClient(SERVER_IP, SERVER_PORT, sensors);
+            client = new DataLoggerClient(SERVER_IP, SERVER_PORT, sensors, dataQueue);
         } catch (UnknownHostException e) {
             e.printStackTrace();
             return;
