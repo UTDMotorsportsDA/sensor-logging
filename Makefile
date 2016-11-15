@@ -23,6 +23,7 @@ load:
 	cp -r out logger
 	rm -r logger/out/fsae/da/pit
 	cp run.sh logger
+	cp exec_scripts/car.sh logger/exec_scripts
 	scp -r logger root@$(BEAGLEGBONE_IP):/root
 
 stage:

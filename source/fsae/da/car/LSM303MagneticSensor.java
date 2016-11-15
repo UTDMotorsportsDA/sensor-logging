@@ -2,6 +2,7 @@ package fsae.da.car;
 
 import java.time.Duration;
 
+// outputs magnetic vector in micro-Tesla
 public class LSM303MagneticSensor extends Sensor {
 
     private int busNumber;
@@ -11,7 +12,7 @@ public class LSM303MagneticSensor extends Sensor {
 
     // x, y, and z values in SI units of meters per second per second
     private float[] currentValue = new float[3];
-    private float conversionScaleFactorXY = 1.0f, conversionScaleFactorZ = 1.0f;
+    private float conversionScaleFactorXY, conversionScaleFactorZ;
 
     public LSM303MagneticSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
         super(label, timesBetweenUpdates);
@@ -26,7 +27,7 @@ public class LSM303MagneticSensor extends Sensor {
         return NativeI2C.read(bytesPerMeasurement, measurementStartAddress, deviceAddress, busNumber);
     }
 
-    // LSM303 may not use every bit of the low byte, right shift may be necessary
+
     @Override
     public boolean refresh() {
         byte[] reading = readValue();
@@ -80,41 +81,42 @@ public class LSM303MagneticSensor extends Sensor {
         }
 
         // set the range to at least as wide as the sensor needs to detect
+        // output is in micro-Tesla
         maxField = Math.abs(maxField);
         if(maxField <= 1.3) { // +- 1.3 gauss
             GN = 0x01;
-            conversionScaleFactorXY = (float)(1.0 / 1100.0);
-            conversionScaleFactorZ = (float)(1.0 / 980.0);
+            conversionScaleFactorXY = (float)(100.0 / 1100.0);
+            conversionScaleFactorZ = (float)(100.0 / 980.0);
         }
         else if(maxField <= 1.9) { // +- 1.9 gauss
             GN = 0x02;
-            conversionScaleFactorXY = (float)(1.0 / 855.0);
-            conversionScaleFactorZ = (float)(1.0 / 760.0);
+            conversionScaleFactorXY = (float)(100.0 / 855.0);
+            conversionScaleFactorZ = (float)(100.0 / 760.0);
         }
         else if(maxField <= 2.5) { // +- 2.5 gauss
             GN = 0x03;
-            conversionScaleFactorXY = (float)(1.0 / 670.0);
-            conversionScaleFactorZ = (float)(1.0 / 600.0);
+            conversionScaleFactorXY = (float)(100.0 / 670.0);
+            conversionScaleFactorZ = (float)(100.0 / 600.0);
         }
         else if(maxField <= 4.0) { // +- 4.0 gauss
             GN = 0x04;
-            conversionScaleFactorXY = (float)(1.0 / 450.0);
-            conversionScaleFactorZ = (float)(1.0 / 400.0);
+            conversionScaleFactorXY = (float)(100.0 / 450.0);
+            conversionScaleFactorZ = (float)(100.0 / 400.0);
         }
         else if(maxField <= 4.7) { // +- 4.7 gauss
             GN = 0x05;
-            conversionScaleFactorXY = (float)(1.0 / 400.0);
-            conversionScaleFactorZ = (float)(1.0 / 355.0);
+            conversionScaleFactorXY = (float)(100.0 / 400.0);
+            conversionScaleFactorZ = (float)(100.0 / 355.0);
         }
         else if(maxField <= 5.6) { // +- 5.6 gauss
             GN = 0x06;
-            conversionScaleFactorXY = (float)(1.0 / 330.0);
-            conversionScaleFactorZ = (float)(1.0 / 295.0);
+            conversionScaleFactorXY = (float)(100.0 / 330.0);
+            conversionScaleFactorZ = (float)(100.0 / 295.0);
         }
         else { // LSM303 goes up to +- 8.1 gauss max measurement
             GN = 0x07;
-            conversionScaleFactorXY = (float)(1.0 / 230.0);
-            conversionScaleFactorZ = (float)(1.0 / 205.0);
+            conversionScaleFactorXY = (float)(100.0 / 230.0);
+            conversionScaleFactorZ = (float)(100.0 / 205.0);
         }
 
         // set sensor update rate

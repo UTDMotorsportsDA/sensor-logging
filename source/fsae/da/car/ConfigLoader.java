@@ -72,6 +72,19 @@ public final class ConfigLoader {
                     }
                     break;
 
+                case "LSM303m":
+                    if(parameters.length != 6) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (LSM303m type requires exactly 6)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        sensors.add(new LSM303MagneticSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4]), Integer.parseInt(parameters[5])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+                    break;
+
                 default:
                     System.err.println("config.properties error (" + sensorName + "): " + parameters[0] + " is not a valid sensor type");
                     continue iterateProperties;
