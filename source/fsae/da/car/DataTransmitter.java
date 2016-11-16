@@ -2,6 +2,10 @@ package fsae.da.car;
 
 import fsae.da.DataPoint;
 
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.Queue;
 
 /**
@@ -12,7 +16,7 @@ public class DataTransmitter implements Runnable {
     Queue<DataPoint> dataQueue;
     boolean done = false;
 
-    public DataTransmitter(Queue<DataPoint> q, String pitIP, int pitPort, String broadcastIP, int broadcastPort) {
+    public DataTransmitter(Queue<DataPoint> q, OutputStream[] streams, DatagramSocket broadcastSocket, String broadcastIP) {
         dataQueue = q;
     }
 
@@ -20,7 +24,7 @@ public class DataTransmitter implements Runnable {
     public void run() {
 
         while(!(done && dataQueue.isEmpty())) {
-
+            break;
 
         }
     }

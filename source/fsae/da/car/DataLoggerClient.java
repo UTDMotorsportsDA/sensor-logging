@@ -2,31 +2,21 @@ package fsae.da.car;
 
 import fsae.da.DataPoint;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 public class DataLoggerClient implements Runnable {
 
-    private InetAddress broadcastAddress = null;
-    private int port = 0;
     private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
     private Queue<DataPoint> outputQueue;
     boolean done = false;
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
 
-    public DataLoggerClient(String broadcastIP, int commPort, Sensor[] sensors, Queue<DataPoint> outputQueue) throws UnknownHostException {
-        this.broadcastAddress = InetAddress.getByName(broadcastIP);
-        port = commPort;
+    public DataLoggerClient(Sensor[] sensors, Queue<DataPoint> outputQueue) throws UnknownHostException {
         this.outputQueue = outputQueue;
 
         // wrap sensors in objects that implement
@@ -83,53 +73,40 @@ public class DataLoggerClient implements Runnable {
             updaterThreads[i].start();
         }
 
-        // open a socket for broadcasting data
-        try(DatagramSocket broadcastSocket = new DatagramSocket()) {
+        while(!done) {
+            // retrieve a sensor from which to read out of the queue
+            ComparableSensor currentComparableSensor = sensorQueue.poll();
+            Sensor currentSensor = currentComparableSensor.sensor();
 
-            System.out.println("Client is up.");
+            // wait until moment of update
+            Duration delta = Duration.between(Instant.now(), currentComparableSensor.nextRefresh());
+            if(delta.compareTo(Duration.ZERO) > 0) {
+                long millisToWait = delta.toMillis();
+                int nanosToWait = Math.max(0, (int)delta.minusMillis(millisToWait).toNanos());
 
-            while(!done) {
-                // retrieve a sensor from which to read out of the queue
-                ComparableSensor currentComparableSensor = sensorQueue.poll();
-                Sensor currentSensor = currentComparableSensor.sensor();
-
-                // wait until moment of update
-                Duration delta = Duration.between(Instant.now(), currentComparableSensor.nextRefresh());
-                if(delta.compareTo(Duration.ZERO) > 0) {
-                    long millisToWait = delta.toMillis();
-                    int nanosToWait = Math.max(0, (int)delta.minusMillis(millisToWait).toNanos());
-
-                    try {
-                        Thread.sleep(millisToWait, nanosToWait);
-                    } catch (InterruptedException e) {
-                        // skip the rest of waiting for the next sensor reading, some critical state has changed
-                    }
+                try {
+                    Thread.sleep(millisToWait, nanosToWait);
+                } catch (InterruptedException e) {
+                    // skip the rest of waiting for the next sensor reading, some critical state has changed
                 }
-
-                // convert a formatted data point string into an equivalent ascii byte array
-                byte[] dataBytes = (currentComparableSensor.sensor().getLabel() + "=" + currentSensor.getCurrent() + "@" + Instant.now().toEpochMilli()).getBytes(StandardCharsets.US_ASCII);
-                broadcastSocket.send(
-                        new DatagramPacket(dataBytes, dataBytes.length, broadcastAddress, port)
-                );
-//                outputQueue.add(new DataPoint(currentComparableSensor.sensor().getLabel(), currentComparableSensor.sensor().getCurrent(), Instant.now().toEpochMilli()));
-
-                // re-enqueue sensor for next update
-                requeueComparableSensor(currentComparableSensor);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // temporary: kill the updaters and wait for them to end
-                for(SensorUpdater u : updaters)
-                    u.end();
-                for(Thread t : updaterThreads)
-                    t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+            // enqueue a new data point
+            outputQueue.add(new DataPoint(currentSensor.getLabel(), currentSensor.getCurrent(), Instant.now().toEpochMilli()));
+
+            // re-enqueue sensor for next update
+            requeueComparableSensor(currentComparableSensor);
         }
 
+        try {
+            // temporary: kill the updaters and wait for them to end
+            for(SensorUpdater u : updaters)
+                u.end();
+            for(Thread t : updaterThreads)
+                t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // allow client to finish
