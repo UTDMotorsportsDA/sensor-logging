@@ -5,6 +5,7 @@ import fsae.da.DataPoint;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -16,16 +17,20 @@ public class DataTransmitter implements Runnable {
     Queue<DataPoint> dataQueue;
     boolean done = false;
 
-    public DataTransmitter(Queue<DataPoint> q, OutputStream[] streams, DatagramSocket broadcastSocket, String broadcastIP) {
+    public DataTransmitter(Queue<DataPoint> q, OutputStream[] streams, String broadcastIP, int broadcastPort) {
         dataQueue = q;
     }
 
     @Override
     public void run() {
+        try(DatagramSocket bcastSocket = new DatagramSocket()) {
+            System.out.println("Client is up");
+            while (!(done && dataQueue.isEmpty())) {
+                break;
 
-        while(!(done && dataQueue.isEmpty())) {
-            break;
-
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
     }
 

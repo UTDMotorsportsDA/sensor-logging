@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BROADCAST_IP=127.0.0.1
+BROADCAST_IP=127.0.0.255
 BROADCAST_PORT=2016
 PIT_IP=127.0.0.1
 PIT_PORT=2017
@@ -19,7 +19,7 @@ if [ $1 == "pit" ]; then
 	if [ $# -gt 1 ]; then
 		BROADCAST_PORT=$2
 	fi
-    bash exec_scripts/pit.sh $BROADCAST_PORT
+    bash exec_scripts/pit.sh $BROADCAST_PORT $PIT_PORT
 
 elif [ $1 == "car" ]; then
 
@@ -47,7 +47,7 @@ elif [ $1 == "sim" ]; then
  		SENSOR_CONFIG_FILE=$4
  	fi
 
- 	x-terminal-emulator --working-directory=. -e bash exec_scripts/pit.sh $BROADCAST_PORT
+ 	x-terminal-emulator --working-directory=. -e bash exec_scripts/pit.sh $BROADCAST_PORT $PIT_PORT
  	x-terminal-emulator --working-directory=. -e bash exec_scripts/car.sh $BROADCAST_IP $BROADCAST_PORT $PIT_IP $PIT_PORT $SPOOF_SENSOR_CONFIG_FILE
 
 else

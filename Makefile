@@ -4,13 +4,16 @@ CLASSPATH=out/
 NATIVE_OBJ_DIR=JNI/lib
 BEAGLEGBONE_IP=192.168.3.142
 
-all: pit car native
+all: common pit car native
+
+common:
+	javac -cp $(CLASSPATH) source/fsae/da/*.java -d $(CLASSPATH)
 
 pit:
-	javac -cp $(CLASSPATH) source/fsae/da/pit/*.java -d out
+	javac -cp $(CLASSPATH) source/fsae/da/pit/*.java -d $(CLASSPATH)
 
 car:
-	javac -cp $(CLASSPATH) source/fsae/da/car/*.java -d out/
+	javac -cp $(CLASSPATH) source/fsae/da/car/*.java -d $(CLASSPATH)
 
 native:
 	javah -jni -cp out -d JNI/src fsae.da.car.NativeI2C

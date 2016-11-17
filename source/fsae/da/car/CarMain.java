@@ -28,16 +28,14 @@ public class CarMain {
         DataTransmitter tx = null;
         Queue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
         Socket clientSocket = null;
-        DatagramSocket broadcastSocket = null;
         ArrayList<OutputStream> streams = new ArrayList<>();
 
         try {
             clientSocket = new Socket(PIT_IP, PIT_PORT);
-            broadcastSocket = new DatagramSocket(BROADCAST_PORT);
 
             streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
             client = new DataLoggerClient(sensors, dataQueue);
-            tx = new DataTransmitter(dataQueue, streams.toArray(new OutputStream[0]), broadcastSocket, BROADCAST_IP);
+            tx = new DataTransmitter(dataQueue, streams.toArray(new OutputStream[0]), BROADCAST_IP, BROADCAST_PORT);
         } catch (UnknownHostException e) {
             e.printStackTrace();
             return;
