@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public class DataLoggerClient implements Runnable {
+public class DataLogger implements Runnable {
 
     private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
     private Queue<DataPoint> outputQueue;
@@ -16,7 +16,7 @@ public class DataLoggerClient implements Runnable {
     private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
 
-    public DataLoggerClient(Sensor[] sensors, Queue<DataPoint> outputQueue) throws UnknownHostException {
+    public DataLogger(Sensor[] sensors, Queue<DataPoint> outputQueue) {
         this.outputQueue = outputQueue;
 
         // wrap sensors in objects that implement

@@ -2,6 +2,7 @@ package fsae.da.car;
 
 import java.time.Instant;
 
+// wrap sensors in such a way that they can be sorted (such as in a priority queue)
 class ComparableSensor implements Comparable<ComparableSensor> {
     private Sensor s = null;
     private RefreshType refresh = null;

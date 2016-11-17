@@ -10,7 +10,7 @@ public class LSM303MagneticSensor extends Sensor {
     private byte measurementStartAddress = 0x03;
     private int bytesPerMeasurement = 6;
 
-    // x, y, and z values in SI units of meters per second per second
+    // x, y, and z values in SI units of Tesla
     private float[] currentValue = new float[3];
     private float conversionScaleFactorXY, conversionScaleFactorZ;
 
@@ -23,18 +23,18 @@ public class LSM303MagneticSensor extends Sensor {
     }
 
     private byte[] readValue() {
-        // set highest bit of register address to allow multi-byte read
         return NativeI2C.read(bytesPerMeasurement, measurementStartAddress, deviceAddress, busNumber);
     }
 
 
     @Override
     public boolean refresh() {
+        // pull a set of XYZ values from the magnetometer
         byte[] reading = readValue();
 
         // convert from LSM303 register values to SI units
-        for(int i = 0; i < 2; ++i)
-            currentValue[i] = conversionScaleFactorXY * (short)(((reading[2*i] & 0xff) << 8) | reading[2*i+1] & 0xff);
+        currentValue[0] = conversionScaleFactorXY * (short)(((reading[0] & 0xff) << 8) | reading[1] & 0xff);
+        currentValue[1] = conversionScaleFactorXY * (short)(((reading[2] & 0xff) << 8) | reading[3] & 0xff);
         currentValue[2] = conversionScaleFactorZ * (short)(((reading[4] & 0xff) << 8) | reading[5] & 0xff);
 
         return false;

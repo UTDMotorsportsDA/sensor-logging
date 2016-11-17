@@ -7,8 +7,10 @@ import java.util.Map;
  * Created by brian on 11/9/16.
  */
 public final class NativeI2C {
+    // connect bus numbers to open file descriptors
     private static Map<Integer, Integer> fdMap;
 
+    // no instantiation allowed
     private NativeI2C() {}
 
     static {

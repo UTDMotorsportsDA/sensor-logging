@@ -37,6 +37,8 @@ elif [ $1 == "car" ]; then
 
 elif [ $1 == "sim" ]; then
 
+	SENSOR_CONFIG_FILE=$SPOOF_SENSOR_CONFIG_FILE
+
  	if [[ $# -gt 1 ]]; then
  		BROADCAST_IP=$2
  	fi
@@ -48,7 +50,7 @@ elif [ $1 == "sim" ]; then
  	fi
 
  	x-terminal-emulator --working-directory=. -e bash exec_scripts/pit.sh $BROADCAST_PORT $PIT_PORT
- 	x-terminal-emulator --working-directory=. -e bash exec_scripts/car.sh $BROADCAST_IP $BROADCAST_PORT $PIT_IP $PIT_PORT $SPOOF_SENSOR_CONFIG_FILE
+ 	x-terminal-emulator --working-directory=. -e bash exec_scripts/car.sh $BROADCAST_IP $BROADCAST_PORT $PIT_IP $PIT_PORT $SENSOR_CONFIG_FILE
 
 else
 	echo "specify a run target like car, pit, or sim"

@@ -22,7 +22,6 @@ public final class ConfigLoader {
 
         // for every property in the file...
         Enumeration e = props.propertyNames();
-
         iterateProperties:
         while(e.hasMoreElements()) {
             String sensorName = (String)e.nextElement();
@@ -47,16 +46,11 @@ public final class ConfigLoader {
             // create sensor of specified type and add to arrayList
             switch (parameters[0]) {
                 case "Spoof":
-                    if(parameters.length != 5) {
-                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (Spoof type requires exactly 5)");
+                    if(parameters.length != 4) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (Spoof type requires exactly 4)");
                         continue iterateProperties;
                     }
-                    try {
-                        sensors.add(new SpoofSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4])));
-                    } catch(NumberFormatException ex) {
-                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting (float value expected)");
-                        continue iterateProperties;
-                    }
+                    sensors.add(new SpoofSensor(sensorName, refreshPeriods));
                     break;
 
                 case "LSM303a":
@@ -104,6 +98,7 @@ public final class ConfigLoader {
             }
         }
 
+        // return a fixed array; system should be unpowered when changing physical configuration anyway
         return sensors.toArray(new Sensor[0]);
     }
 }

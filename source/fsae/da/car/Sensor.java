@@ -7,9 +7,9 @@ public abstract class Sensor {
     protected String name = null;
     protected boolean critical = false;
 
-    // value update, pit, pit critical
+    // 3 elements: value update, pit, pit critical
     protected Duration[] refreshPeriods = null;
-    // value update, pit
+    // 2 elements: value update, pit
     protected Instant[] lastRefreshes = new Instant[2];
 
     // default access: children shall overload this constructor, adding a 'criticalThreshold' parameter

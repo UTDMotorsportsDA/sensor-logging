@@ -5,11 +5,9 @@ import fsae.da.DataPoint;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -24,19 +22,22 @@ public class CarMain {
         // load sensors
         Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[4]);
 
-        // client to collect and enqueue data, transmitter to send/broadcast
-        DataLoggerClient client = null;
+        // client to collect and enqueue data, transmitter to send/broadcast from the queue
+        DataLogger logger = null;
         DataTransmitter tx = null;
         BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
-        Socket clientSocket = null;
+
+        // destinations for the transmitter
         ArrayList<OutputStream> streams = new ArrayList<>();
 
         try {
-            clientSocket = new Socket(PIT_IP, PIT_PORT);
+            // open a TCP socket to the pit for reliability, get its output stream
+            // need to put this on a new thread to allow for lost connection, not connecting immediately, etc
+            streams.add(new BufferedOutputStream(new Socket(PIT_IP, PIT_PORT).getOutputStream()));
 
-            streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
-            client = new DataLoggerClient(sensors, dataQueue);
-            tx = new DataTransmitter(dataQueue, streams.toArray(new OutputStream[0]), BROADCAST_IP, BROADCAST_PORT);
+            // transmitter will send data points from the queue
+            // let UnknownHostException propagate back here
+            tx = new DataTransmitter(dataQueue, streams, BROADCAST_IP, BROADCAST_PORT);
         } catch (UnknownHostException e) {
             e.printStackTrace();
             return;
@@ -44,9 +45,12 @@ public class CarMain {
             e.printStackTrace();
         }
 
+        // create the logger to enqueue data points from sensors
+        logger = new DataLogger(sensors, dataQueue);
+
         // run logger on a thread to allow additional tasks
-        Thread clientThread = new Thread(client);
-        clientThread.start();
+        Thread loggerThread = new Thread(logger);
+        loggerThread.start();
 
         // give TX a thread to preserve data integrity
         Thread txThread = new Thread(tx);
@@ -56,10 +60,10 @@ public class CarMain {
         while(Character.toUpperCase(stdin.next().charAt(0)) != 'q');
 
         // quit
-        client.end();
+        logger.end();
         tx.end();
         try {
-            clientThread.join();
+            loggerThread.join();
             txThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();

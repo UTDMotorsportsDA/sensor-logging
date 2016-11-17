@@ -2,8 +2,6 @@ package fsae.da.pit;
 
 import fsae.da.DataPoint;
 
-import javax.xml.crypto.Data;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
@@ -51,7 +49,7 @@ public class DataLoggerServer implements Runnable {
                 DataPoint tcpData = new DataPoint(tcpInput.nextLine());
 
                 // dump data to the console
-                System.out.println("udp: " + udpData + "tcp: " + tcpData);
+                System.out.println(String.format("%1$-39s", "udp: " + udpData) + " tcp: " + tcpData);
             }
 
         } catch (IOException e) {

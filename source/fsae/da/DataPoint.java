@@ -19,14 +19,13 @@ public final class DataPoint implements Comparable<DataPoint> {
 
     public DataPoint(String fullDataPoint) throws NumberFormatException {
         String[] params = fullDataPoint.split("[" + LABEL_DELIMITER + VALUE_DELIMITER + "]");
+        if(params[2].charAt(params[2].length()) == '\n') params[2] = params[2].substring(0, params[2].length() - 1);
         this.label = params[0];
         this.value = params[1];
         this.timestamp = Long.parseLong(params[2]);
     }
 
-    public String toString() {
-        return label + LABEL_DELIMITER + value + VALUE_DELIMITER + timestamp;
-    }
+    public String toString() { return label + LABEL_DELIMITER + value + VALUE_DELIMITER + timestamp; }
     public String getLabel() { return label; }
     public String getValue() { return value; }
     public long getTimestamp() { return timestamp; }
