@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CarMain {
@@ -26,7 +27,7 @@ public class CarMain {
         // client to collect and enqueue data, transmitter to send/broadcast
         DataLoggerClient client = null;
         DataTransmitter tx = null;
-        Queue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
+        BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
         Socket clientSocket = null;
         ArrayList<OutputStream> streams = new ArrayList<>();
 
