@@ -66,8 +66,9 @@ public class DataTransmitter implements Runnable {
                 );
 
                 // write to streams
-                for(OutputStream s : outStreams)
+                for(OutputStream s : outStreams) {
                     s.write(data);
+                }
             }
         } catch (SocketException e) {
             e.printStackTrace();

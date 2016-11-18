@@ -34,9 +34,9 @@ public class DataLoggerServer implements Runnable {
             // note: every single UDP packet received by the machine can come here
             broadcastReceiveSocket = new MulticastSocket(broadcastReceivePort);
             DatagramPacket pkt = new DatagramPacket(new byte[1024], 1024);
-            ServerSocket ssock = new ServerSocket(tcpReceivePort);
-            Socket tcpReceiveSocket = ssock.accept();
-            Scanner tcpInput = new Scanner(tcpReceiveSocket.getInputStream());
+//            ServerSocket ssock = new ServerSocket(tcpReceivePort);
+//            Socket tcpReceiveSocket = ssock.accept();
+//            Scanner tcpInput = new Scanner(tcpReceiveSocket.getInputStream());
 
             System.out.println("Server is up");
 
@@ -46,10 +46,10 @@ public class DataLoggerServer implements Runnable {
 
                 // convert packet back into a string
                 DataPoint udpData = new DataPoint(new String(pkt.getData(), 0, pkt.getLength(), StandardCharsets.US_ASCII));
-                DataPoint tcpData = new DataPoint(tcpInput.nextLine());
+//                DataPoint tcpData = new DataPoint(tcpInput.nextLine());
 
                 // dump data to the console
-                System.out.println(String.format("%1$-39s", "udp: " + udpData) + " tcp: " + tcpData);
+                System.out.println(String.format("%1$-39s", "udp: " + udpData) /*+ " tcp: " + tcpData*/);
             }
 
         } catch (IOException e) {

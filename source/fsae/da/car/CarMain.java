@@ -32,18 +32,18 @@ public class CarMain {
         // destinations for the transmitter
         ArrayList<OutputStream> streams = new ArrayList<>();
 
-        // try first time to make a socket
-        Socket clientSocket = null;
-        SocketAddress clientSockAddr = null;
-        try {
-            clientSocket = new Socket(PIT_IP, PIT_PORT);
-        } catch (IOException | SecurityException e) {
-            clientSocket = null;
-        }
+//        // try first time to make a socket
+//        Socket clientSocket = null;
+//        SocketAddress clientSockAddr = null;
+//        try {
+//            clientSocket = new Socket(PIT_IP, PIT_PORT);
+//        } catch (IOException | SecurityException e) {
+//            clientSocket = null;
+//        }
 
         try {
-            // open a TCP socket to the pit for reliability, get its output stream (only if connection succeeded)
-            if(clientSocket != null) streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
+//            // open a TCP socket to the pit for reliability, get its output stream (only if connection succeeded)
+//            if(clientSocket != null) streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
 
             // transmitter will send data points from the queue
             // let UnknownHostException propagate back here
@@ -67,23 +67,25 @@ public class CarMain {
         txThread.start();
 
         // wait for user to quit
-        while(Character.toUpperCase(stdin.next().charAt(0)) != 'q') {
-            if(clientSocket == null) { // keep trying to connect to the pit w/ 1-second timeouts
-                try {
-                    clientSocket = new Socket();
-                    clientSocket.connect(new InetSocketAddress(PIT_IP, PIT_PORT), 1000);
-                } catch (IOException | SecurityException e) {
-                    clientSocket = null;
-                    continue;
-                }
-
-                // we're here because connection succeeded, so add to stream list
-                try {
-                    streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
-                } catch (IOException e) {
-                    e.printStackTrace(); // most likely won't happen
-                }
-            }
+        while(true) {
+//            if(clientSocket == null) { // keep trying to connect to the pit w/ 1-second timeouts
+//                try {
+//                    (clientSocket = new Socket()).connect(new InetSocketAddress(PIT_IP, PIT_PORT), 1000);
+//                } catch (IOException | SecurityException e) {
+//                    clientSocket = null;
+//                    continue;
+//                }
+//
+//                // we're here because connection succeeded, so add to stream list
+//                try {
+//                    streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
+//                } catch (IOException e) {
+//                    e.printStackTrace(); // most likely won't happen
+//                }
+//            }
+            if(stdin.hasNext())
+                if(Character.toUpperCase(stdin.next().charAt(0)) == 'Q')
+                    break;
         }
 
         // quit
