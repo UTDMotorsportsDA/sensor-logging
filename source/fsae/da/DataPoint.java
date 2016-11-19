@@ -18,14 +18,17 @@ public final class DataPoint implements Comparable<DataPoint> {
     }
 
     public DataPoint(String fullDataPoint) throws NumberFormatException {
-        this.label = fullDataPoint.split(LABEL_DELIMITER)[0];
-        this.value = fullDataPoint.substring(label.length() + 1, fullDataPoint.length()).split(VALUE_DELIMITER)[0];
-        this.timestamp = Integer.parseInt(fullDataPoint.substring(label.length() + value.length() + 2), fullDataPoint.length());
+        String[] params = fullDataPoint.split("[" + LABEL_DELIMITER + VALUE_DELIMITER + "]");
+        if(params[2].charAt(params[2].length() - 1) == '\n') params[2] = params[2].substring(0, params[2].length() - 1);
+        this.label = params[0];
+        this.value = params[1];
+        this.timestamp = Long.parseLong(params[2]);
     }
 
-    public String toString() {
-        return label + LABEL_DELIMITER + value + VALUE_DELIMITER + timestamp;
-    }
+    public String toString() { return label + LABEL_DELIMITER + value + VALUE_DELIMITER + timestamp; }
+    public String getLabel() { return label; }
+    public String getValue() { return value; }
+    public long getTimestamp() { return timestamp; }
 
     @Override
     public int compareTo(DataPoint dataPoint) {

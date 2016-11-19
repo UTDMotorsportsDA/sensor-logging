@@ -6,16 +6,9 @@ import java.time.Instant;
 public class SpoofSensor extends Sensor { // fake sensor data for testing
 
     private float currentValue = 40.f;
-    private float criticalThreshold;
-    private boolean wasCritical = false;
 
-    private boolean checkCritical(float newValue) {
-        return critical; // never to be set critical internally
-    }
-
-    public SpoofSensor(String label, Duration[] timesBetweenUpdates, float criticalThreshold) {
+    public SpoofSensor(String label, Duration[] timesBetweenUpdates) {
         super(label, timesBetweenUpdates);
-        this.criticalThreshold = criticalThreshold;
     }
 
     @Override
@@ -28,14 +21,8 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
         currentValue += ((float)Math.random() - 0.5f) * scale;
         lastRefreshes[0] = Instant.now();
 
-        if((critical = checkCritical(currentValue)) == wasCritical) {
-            wasCritical = critical;
-            return false; // critical state has remained the same
-        }
-        else {
-            wasCritical = critical;
-            return true; // critical state has changed
-        }
+        // critical state is permanently false
+        return false;
     }
 
     @Override

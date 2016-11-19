@@ -1,7 +1,6 @@
 package fsae.da.car;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 /**
  * Created by brian on 11/14/16.
@@ -9,14 +8,14 @@ import java.util.Arrays;
 public class L3GD20HGyroscopeSensor extends Sensor {
     public final double RADIANS_PER_DEGREE = Math.PI / 180.0;
 
-    private int busNumber;
-    private byte deviceAddress = 0x6b;
-    private byte measurementStartAddress = (byte)0x28;
-    private int bytesPerMeasurement = 6;
+    private int busNumber; // caller must specify the bus this device is connected to
+    private final byte DEVICE_ADDRESS = 0x6b; // from device datasheet
+    private final byte MEASUREMENT_START_ADDRESS = (byte)0x28; // from device datasheet
+    private final int BYTES_PER_MEASUREMENT = 6; // from device datasheet
 
-    // x, y, and z values in SI units of meters per second per second
+    // x, y, and z values in SI units of radians per second
     private float[] currentValue = new float[3];
-    private float conversionScaleFactor = 0.0f;
+    private float conversionScaleFactor = 0.0f; // device register values need conversion to SI
 
     public L3GD20HGyroscopeSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
         super(label, timesBetweenUpdates);
@@ -28,14 +27,13 @@ public class L3GD20HGyroscopeSensor extends Sensor {
 
     private byte[] readValue() {
         // set highest bit of register address to allow multi-byte read
-        return NativeI2C.read(bytesPerMeasurement, (byte)((measurementStartAddress & 0xff) | 0x80), deviceAddress, busNumber);
+        return NativeI2C.read(BYTES_PER_MEASUREMENT, (byte)((MEASUREMENT_START_ADDRESS & 0xff) | 0x80), DEVICE_ADDRESS, busNumber);
     }
 
     @Override
     public boolean refresh() {
+        // pull a set of XYZ values from the gyro
         byte[] reading = readValue();
-
-        System.out.println(String.format("[ %02xh %02xh %02xh %02xh %02xh %02xh ]", reading[0], reading[1], reading[2], reading[3], reading[4], reading[5]));
 
         // convert from L3GD20H register values to SI units
         for(int i = 0; i < 3; ++i)
@@ -98,11 +96,11 @@ public class L3GD20HGyroscopeSensor extends Sensor {
         lowerConfigVals[3] = (byte)((FS & 0xff) << 4);
 
         // write determined configuration to sensor
-        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0xa0, deviceAddress, busNumber);
+        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0xa0, DEVICE_ADDRESS, busNumber);
 
-        // set other bytes to their default (in case previously in use elsewhere)
-        NativeI2C.writeByte((byte)0x00, (byte)0x2e, deviceAddress, busNumber);
-        NativeI2C.writeByte((byte)0x00, (byte)0x30, deviceAddress, busNumber);
-        NativeI2C.write(ZEROES, 0x39 - 0x32 + 1, (byte)0x32, deviceAddress, busNumber);
+        // set other bytes to their default (in case device was previously configured elsewhere)
+        NativeI2C.writeByte((byte)0x00, (byte)0x2e, DEVICE_ADDRESS, busNumber);
+        NativeI2C.writeByte((byte)0x00, (byte)0x30, DEVICE_ADDRESS, busNumber);
+        NativeI2C.write(ZEROES, 0x39 - 0x32 + 1, (byte)0x32, DEVICE_ADDRESS, busNumber);
     }
 }

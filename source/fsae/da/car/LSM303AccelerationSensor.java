@@ -11,14 +11,14 @@ import java.time.Duration;
 public class LSM303AccelerationSensor extends Sensor {
     public static final float ONE_G = 9.80665f;
 
-    private int busNumber;
-    private byte deviceAddress = 0x19;
-    private byte measurementStartAddress = (byte)0x28;
-    private int bytesPerMeasurement = 6;
+    private int busNumber; // caller must specify the bus this device is connected to
+    private final byte DEVICE_ADDRESS = 0x19; // from device datasheet
+    private final byte MEASUREMENT_START_ADDRESS = (byte)0x28; // from device datasheet
+    private final int BYTES_PER_MEASUREMENT = 6; // from device datasheet
 
     // x, y, and z values in SI units of meters per second per second
     private float[] currentValue = new float[3];
-    private float conversionScaleFactor = 0.0f;
+    private float conversionScaleFactor = 0.0f; // device register values need conversion to SI
 
     public LSM303AccelerationSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
         super(label, timesBetweenUpdates);
@@ -30,11 +30,12 @@ public class LSM303AccelerationSensor extends Sensor {
 
     private byte[] readValue() {
         // set highest bit of register address to allow multi-byte read
-        return NativeI2C.read(bytesPerMeasurement, (byte)((measurementStartAddress & 0xff) | 0x80), deviceAddress, busNumber);
+        return NativeI2C.read(BYTES_PER_MEASUREMENT, (byte)((MEASUREMENT_START_ADDRESS & 0xff) | 0x80), DEVICE_ADDRESS, busNumber);
     }
 
     @Override
     public boolean refresh() {
+        // pull a set of XYZ values from the accelerometer
         byte[] reading = readValue();
 
         // convert from LSM303 register values to SI units
@@ -110,6 +111,6 @@ public class LSM303AccelerationSensor extends Sensor {
         lowerConfigVals[3] = (byte)(((FS & 0xff) << 4) | 0x08);
 
         // write determined configuration to sensor
-        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0xa0, deviceAddress, busNumber);
+        NativeI2C.write(lowerConfigVals, lowerConfigVals.length, (byte)0xa0, DEVICE_ADDRESS, busNumber);
     }
 }

@@ -9,7 +9,7 @@ import java.util.Queue;
 // either use this or inherit from it to optimize updating
 public class SensorUpdater implements Runnable {
 
-    protected DataLoggerClient ownerLogger = null;
+    protected DataLogger ownerLogger = null;
     protected Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
     protected boolean done = false;
 
@@ -55,10 +55,11 @@ public class SensorUpdater implements Runnable {
         }
     }
 
-    public SensorUpdater(DataLoggerClient logger) {
+    protected SensorUpdater() {} // prevent default construction
+    public SensorUpdater(DataLogger logger) {
         this.ownerLogger = logger;
     }
-    public SensorUpdater(DataLoggerClient logger, Sensor[] sensors) {
+    public SensorUpdater(DataLogger logger, Sensor[] sensors) {
         for(Sensor s : sensors)
             addSensor(s);
     }
