@@ -1,7 +1,6 @@
 package fsae.da.car;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 /**
  * Created by brian on 11/14/16.

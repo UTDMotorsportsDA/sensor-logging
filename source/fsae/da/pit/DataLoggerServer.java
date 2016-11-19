@@ -50,11 +50,13 @@ public class DataLoggerServer implements Runnable {
 
                 // convert packet back into a string
                 udpData = new DataPoint(new String(pkt.getData(), 0, pkt.getLength(), StandardCharsets.US_ASCII));
+
+                // if no data is available over TCP, skip it
                 if(tcpInputStream.available() > 0) tcpData = new DataPoint(tcpInput.nextLine());
                 else tcpData = new DataPoint("x", "x", 0);
 
                 // dump data to the console
-                System.out.println(String.format("%1$-39s", "udp: " + udpData) + " tcp: " + tcpData);
+                System.out.println(String.format("%1$-60s", "udp: " + udpData) + " tcp: " + tcpData);
             }
 
         } catch (IOException e) {

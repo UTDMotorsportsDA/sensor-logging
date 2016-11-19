@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,6 +19,11 @@ public class CarMain {
         final String BROADCAST_IP = args[0], PIT_IP = args[2];
         final int BROADCAST_PORT = Integer.parseInt(args[1]), PIT_PORT = Integer.parseInt(args[3]);
         Scanner stdin = new Scanner(System.in);
+
+        // sanity check
+        System.out.println("Broadcast Address: " + BROADCAST_IP + ":" + BROADCAST_PORT);
+        System.out.println("Pit Address: " + PIT_IP + ":" + PIT_PORT);
+        System.out.println("Config Filepath: " + args[4]);
 
         // load sensors
         Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[4]);
@@ -72,7 +76,7 @@ public class CarMain {
                     (clientSocket = new Socket()).connect(new InetSocketAddress(PIT_IP, PIT_PORT), 1000);
                 } catch (IOException | SecurityException e) {
                     clientSocket = null;
-                    try {
+                    try { // usually here because the connection was refused immediately, wait before trying again
                         Thread.sleep(1000);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
@@ -87,7 +91,7 @@ public class CarMain {
                     e.printStackTrace(); // most likely won't happen
                 }
             }
-            if(stdin.hasNext())
+            if(stdin.hasNext()) // keep Q-for-quit function
                 if(Character.toUpperCase(stdin.next().charAt(0)) == 'Q')
                     break;
         }

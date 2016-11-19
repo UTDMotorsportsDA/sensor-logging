@@ -8,6 +8,10 @@ public class PitMain {
         final int BROADCAST_PORT = Integer.parseInt(args[0]);
         final int TCP_PORT = Integer.parseInt(args[1]);
 
+        // sanity check
+        System.out.println("Brodcast Listen Port: " + BROADCAST_PORT);
+        System.out.println("Socket Listen Port: " + TCP_PORT);
+
         // server object (currently just dumps to stdout)
         DataLoggerServer server = new DataLoggerServer(BROADCAST_PORT, TCP_PORT);
 

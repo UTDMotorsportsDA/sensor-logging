@@ -4,10 +4,8 @@ import fsae.da.DataPoint;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;

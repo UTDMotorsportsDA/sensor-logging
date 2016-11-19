@@ -2,7 +2,6 @@ package fsae.da.car;
 
 import fsae.da.DataPoint;
 
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.PriorityQueue;

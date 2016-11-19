@@ -37,7 +37,7 @@ elif [ $1 == "car" ]; then
 
 elif [ $1 == "sim" ]; then
 
-	SENSOR_CONFIG_FILE=$SPOOF_SENSOR_CONFIG_FILE
+	SENSOR_CONFIG_FILE=config/slow.properties
 
  	if [[ $# -gt 1 ]]; then
  		BROADCAST_IP=$2
