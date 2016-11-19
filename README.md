@@ -14,10 +14,7 @@ Data points will be communicated as UDP DatagramPackets with the following forma
 
 example usage:
 
-    make pit
-    make car
-	export C_COMPILER=gcc
-	make native
+    make
 	./run.sh sim
 
 The above will compile source code for simulating on the current machine, then open 2 terminal windows (one for car, one for pit).
