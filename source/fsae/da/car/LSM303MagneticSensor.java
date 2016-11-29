@@ -2,7 +2,7 @@ package fsae.da.car;
 
 import java.time.Duration;
 
-// outputs magnetic vector in micro-Tesla
+// outputs magnetic vector in Tesla
 public class LSM303MagneticSensor extends Sensor {
 
     private int busNumber;
@@ -85,38 +85,38 @@ public class LSM303MagneticSensor extends Sensor {
         maxField = Math.abs(maxField);
         if(maxField <= 130.0) { // +- 1.3 gauss / 130 micro-Tesla
             GN = 0x01;
-            conversionScaleFactorXY = (float)(100.0 / 1100.0);
-            conversionScaleFactorZ = (float)(100.0 / 980.0);
+            conversionScaleFactorXY = (float)(0.1 / 1100.0);
+            conversionScaleFactorZ = (float)(0.1 / 980.0);
         }
         else if(maxField <= 190.0) { // +- 1.9 gauss / 190 micro-Tesla
             GN = 0x02;
-            conversionScaleFactorXY = (float)(100.0 / 855.0);
-            conversionScaleFactorZ = (float)(100.0 / 760.0);
+            conversionScaleFactorXY = (float)(0.1 / 855.0);
+            conversionScaleFactorZ = (float)(0.1 / 760.0);
         }
         else if(maxField <= 250.0) { // +- 2.5 gauss / 250 micro-Tesla
             GN = 0x03;
-            conversionScaleFactorXY = (float)(100.0 / 670.0);
-            conversionScaleFactorZ = (float)(100.0 / 600.0);
+            conversionScaleFactorXY = (float)(0.1 / 670.0);
+            conversionScaleFactorZ = (float)(0.1 / 600.0);
         }
         else if(maxField <= 400.0) { // +- 4.0 gauss / 400 micro-Tesla
             GN = 0x04;
-            conversionScaleFactorXY = (float)(100.0 / 450.0);
-            conversionScaleFactorZ = (float)(100.0 / 400.0);
+            conversionScaleFactorXY = (float)(0.1 / 450.0);
+            conversionScaleFactorZ = (float)(0.1 / 400.0);
         }
         else if(maxField <= 470.0) { // +- 4.7 gauss / 470 micro-Tesla
             GN = 0x05;
-            conversionScaleFactorXY = (float)(100.0 / 400.0);
-            conversionScaleFactorZ = (float)(100.0 / 355.0);
+            conversionScaleFactorXY = (float)(0.1 / 400.0);
+            conversionScaleFactorZ = (float)(0.1 / 355.0);
         }
         else if(maxField <= 560.0) { // +- 5.6 gauss / 560 micro-Tesla
             GN = 0x06;
-            conversionScaleFactorXY = (float)(100.0 / 330.0);
-            conversionScaleFactorZ = (float)(100.0 / 295.0);
+            conversionScaleFactorXY = (float)(0.1 / 330.0);
+            conversionScaleFactorZ = (float)(0.1 / 295.0);
         }
         else { // LSM303 goes up to +- 8.1 gauss max measurement
             GN = 0x07;
-            conversionScaleFactorXY = (float)(100.0 / 230.0);
-            conversionScaleFactorZ = (float)(100.0 / 205.0);
+            conversionScaleFactorXY = (float)(0.1 / 230.0);
+            conversionScaleFactorZ = (float)(0.1 / 205.0);
         }
 
         // set sensor update rate
