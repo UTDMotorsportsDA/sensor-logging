@@ -32,6 +32,9 @@ public class L3GD20HGyroscopeSensor extends Sensor {
 
     @Override
     public boolean refresh() {
+        // call parent
+        super.refresh();
+
         // pull a set of XYZ values from the gyro
         byte[] reading = readValue();
 

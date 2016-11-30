@@ -29,6 +29,9 @@ public class LSM303MagneticSensor extends Sensor {
 
     @Override
     public boolean refresh() {
+        // call parent
+        super.refresh();
+
         // pull a set of XYZ values from the magnetometer
         byte[] reading = readValue();
 

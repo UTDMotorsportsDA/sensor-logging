@@ -13,13 +13,15 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
 
     @Override
     public synchronized boolean refresh() {
+        // call parent
+        super.refresh();
+
         // random fluctuation
         float scale = 1.f;
         try {
             scale = (float)Duration.between(Instant.now(), lastRefreshes[0]).toMillis() / 1000.f;
         } catch(NullPointerException e) {}
         currentValue += ((float)Math.random() - 0.5f) * scale;
-        lastRefreshes[0] = Instant.now();
 
         // critical state is permanently false
         return false;
