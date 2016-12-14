@@ -4,12 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 public abstract class Sensor {
-    // exact timing delays are messy,
-    // but we want sample intervals to average out to the set target
-    private static final double TOTAL_TIMING_ERROR_P_GAIN = 0.5;
-    private static final double TOTAL_TIMING_ERROR_I_GAIN = 0.5;
-    private static final double TOTAL_TIMING_ERROR_D_GAIN = 0.0; // not in use
-
     protected String name = null;
     protected boolean critical = false;
 
@@ -18,13 +12,13 @@ public abstract class Sensor {
     // 2 elements: value update, pit
     protected Instant[] lastRefreshes = new Instant[2];
 
-    // smooth out deviations from real-time update (errors caused by program overhead, non-RTOS, etc)
+    // smooth out deviations from real-time-ness in updates (errors caused by program overhead, non-RTOS, etc)
     // 2 elements: value update, pit update
     private Duration[] refreshErrors = {Duration.ZERO, Duration.ZERO};
 
-    // default access: children shall overload this constructor, adding a 'criticalThreshold' parameter
+    // children shall overload this constructor, adding 'criticalThreshold' parameter(s)
     // and call super(...) to handle first 2 parameters
-    Sensor(String label, Duration[] timesBetweenUpdates) throws IllegalArgumentException {
+    public Sensor(String label, Duration[] timesBetweenUpdates) throws IllegalArgumentException {
         this.name = label;
         if(timesBetweenUpdates.length != 3)
             throw new IllegalArgumentException("all sensors need 3 refresh periods");
@@ -44,7 +38,7 @@ public abstract class Sensor {
         }
 
         // initialize to make first update instantaneous
-        // assume non-critical
+        // assume non-critical initial state
         lastRefreshes[0] = Instant.now().minus(refreshPeriods[0]);
         lastRefreshes[1] = Instant.now().minus(refreshPeriods[1]);
     }
@@ -76,9 +70,7 @@ public abstract class Sensor {
         Instant idealComputedInstant = lastRefreshes[typeOffset].plus(refreshPeriods[(typeOffset == 0) ? 0 : (typeOffset + (isCritical() ? 1 : 0))]);
 
         // account for error accumulation
-        Duration scaledDelta = refreshErrors[typeOffset];
-        scaledDelta = scaledDelta.plus(scaledDelta.dividedBy(2));
-        return idealComputedInstant.minus(scaledDelta);
+        return idealComputedInstant.minus(refreshErrors[typeOffset]);
     }
 
     // update current value, return whether 'critical' has changed
