@@ -39,7 +39,8 @@ public class DataLoggerServer implements Runnable {
             ServerSocket ssock = new ServerSocket(tcpReceivePort);
             Socket tcpReceiveSocket = ssock.accept();
             InputStream tcpInputStream;
-            Scanner tcpInput = new Scanner(tcpInputStream = new BufferedInputStream(tcpReceiveSocket.getInputStream()));
+//            Scanner tcpInput = new Scanner(tcpInputStream = new BufferedInputStream(tcpReceiveSocket.getInputStream()));
+            Scanner tcpInput = new Scanner(tcpInputStream = tcpReceiveSocket.getInputStream());
 
             System.out.println("Server is up");
 

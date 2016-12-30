@@ -35,6 +35,9 @@ public class LSM303AccelerationSensor extends Sensor {
 
     @Override
     public boolean refresh() {
+        // call parent
+        super.refresh();
+
         // pull a set of XYZ values from the accelerometer
         byte[] reading = readValue();
 
