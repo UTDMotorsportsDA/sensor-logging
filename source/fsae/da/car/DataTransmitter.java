@@ -57,6 +57,9 @@ public class DataTransmitter implements Runnable {
                 if (currentPoint == null)
                     continue;
 
+                // print
+                System.out.println(currentPoint);
+
                 // broadcast via UDP
                 byte[] data = (currentPoint.toString() + "\n").getBytes(StandardCharsets.US_ASCII);
                 bcastSocket.send(
@@ -68,10 +71,9 @@ public class DataTransmitter implements Runnable {
                     s.write(data);
                 }
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 

@@ -51,11 +51,9 @@ public class CarMain {
             // transmitter will send data points from the queue
             // let UnknownHostException propagate back here
             tx = new DataTransmitter(dataQueue, streams, BROADCAST_IP, BROADCAST_PORT);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            return;
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
 
         // create the logger to enqueue data points from sensors
