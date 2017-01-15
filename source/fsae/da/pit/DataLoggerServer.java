@@ -16,7 +16,6 @@ public class DataLoggerServer implements Runnable {
 
     // desired port
     private int broadcastReceivePort = 0;
-    private int tcpReceivePort = 0;
 
     // completion condition (allow server to quit)
     private boolean done = false;
@@ -24,9 +23,8 @@ public class DataLoggerServer implements Runnable {
     // UDP resources
     private MulticastSocket broadcastReceiveSocket = null;
 
-    public DataLoggerServer(int broadcastReceivePort, int tcpReceivePort) {
+    public DataLoggerServer(int broadcastReceivePort) {
         this.broadcastReceivePort = broadcastReceivePort;
-        this.tcpReceivePort = tcpReceivePort;
     }
 
     @Override
@@ -36,15 +34,10 @@ public class DataLoggerServer implements Runnable {
             // note: every single UDP packet received by the machine can come here
             broadcastReceiveSocket = new MulticastSocket(broadcastReceivePort);
             DatagramPacket pkt = new DatagramPacket(new byte[1024], 1024);
-            ServerSocket ssock = new ServerSocket(tcpReceivePort);
-            Socket tcpReceiveSocket = ssock.accept();
-            InputStream tcpInputStream;
-//            Scanner tcpInput = new Scanner(tcpInputStream = new BufferedInputStream(tcpReceiveSocket.getInputStream()));
-            Scanner tcpInput = new Scanner(tcpInputStream = tcpReceiveSocket.getInputStream());
 
             System.out.println("Server is up");
 
-            DataPoint udpData, tcpData;
+            DataPoint udpData;
             while(!done) {
                 // wait to get a packet from the broadcast group
                 broadcastReceiveSocket.receive(pkt);
@@ -52,12 +45,8 @@ public class DataLoggerServer implements Runnable {
                 // convert packet back into a string
                 udpData = new DataPoint(new String(pkt.getData(), 0, pkt.getLength(), StandardCharsets.US_ASCII));
 
-                // if no data is available over TCP, skip it
-                if(tcpInputStream.available() > 0) tcpData = new DataPoint(tcpInput.nextLine());
-                else tcpData = new DataPoint("x", "x", 0);
-
                 // dump data to the console
-                System.out.println(String.format("%1$-60s", "udp: " + udpData) + " tcp: " + tcpData);
+                System.out.println(udpData);
             }
 
         } catch (IOException e) {

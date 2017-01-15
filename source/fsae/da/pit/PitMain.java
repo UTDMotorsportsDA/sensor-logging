@@ -6,14 +6,12 @@ public class PitMain {
     public static void main(String[] args) {
         // server needs only a listening port
         final int BROADCAST_PORT = Integer.parseInt(args[0]);
-        final int TCP_PORT = Integer.parseInt(args[1]);
 
         // sanity check
         System.out.println("Broadcast Listen Port: " + BROADCAST_PORT);
-        System.out.println("Socket Listen Port: " + TCP_PORT);
 
         // server object (currently just dumps to stdout)
-        DataLoggerServer server = new DataLoggerServer(BROADCAST_PORT, TCP_PORT);
+        DataLoggerServer server = new DataLoggerServer(BROADCAST_PORT);
 
         // start on separate thread to allow additional work
         new Thread(server).start();
