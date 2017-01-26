@@ -23,18 +23,6 @@ public class CarMain {
             System.exit(1);
         }
 
-//        // grab relevant parameters
-//        String broadcast_IP = props.getProperty("broadcast_IP");
-//        if(broadcast_IP == null) {
-//            System.err.println("could not find broadcast_IP in " + args[0]);
-//            System.exit(1);
-//        }
-//        if(props.getProperty("broadcast_port") == null) {
-//            System.err.println("could not find broadcast_port in " + args[0]);
-//            System.exit(1);
-//        }
-//        int broadcast_port = Integer.parseInt(props.getProperty("broadcast_port")); // more useful as an int
-
         String multicastGroupName = props.getProperty("multicast_group");
         if(multicastGroupName == null) {
             System.err.println("could not find multicast_group in " + args[0]);
@@ -50,8 +38,6 @@ public class CarMain {
         // sanity check
         System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
         System.out.println("Config Filepath: " + args[1]);
-
-        System.exit(0);
 
         // load sensors
         Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[1]);

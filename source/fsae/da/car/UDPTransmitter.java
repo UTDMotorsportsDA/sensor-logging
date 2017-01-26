@@ -4,14 +4,14 @@ import fsae.da.DataPoint;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * specifically intended to broadcast data points from the queue over UDP
+ * specifically intended to multicast data points from the queue to UDP group
  */
 public final class UDPTransmitter implements Runnable {
     // data transmission parameters
@@ -32,7 +32,7 @@ public final class UDPTransmitter implements Runnable {
     @Override
     public void run() {
         // open a UDP socket
-        try(MulticastSocket multicastSocket = new MulticastSocket()) {
+        try(DatagramSocket multicastSocket = new DatagramSocket()) {
             // work with one point at a time
             DataPoint currentPoint = null;
 
@@ -50,7 +50,7 @@ public final class UDPTransmitter implements Runnable {
 
                 // get the data point in bytes
                 // send bytes over UDP
-                byte[] rawBytes = (currentPoint.toString() + '\n').getBytes(StandardCharsets.US_ASCII);
+                byte[] rawBytes = ("<data>" + currentPoint.toString() + "</data>").getBytes(StandardCharsets.US_ASCII);
                 multicastSocket.send(new DatagramPacket(rawBytes, rawBytes.length, multicastAddress, multicastPort));
             }
         } catch (IOException e) {
