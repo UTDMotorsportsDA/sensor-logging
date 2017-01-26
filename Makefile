@@ -18,6 +18,7 @@ car:
 
 native:
 	javah -jni -cp out -d JNI/src fsae.da.car.NativeI2C
+
 ifdef C_COMPILER
 	$(C_COMPILER) -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -shared -fPIC -o $(NATIVE_OBJ_DIR)/libnativei2c.so $(NATIVE_SOURCE_DIR)/fsae_da_car_NativeI2C.c
 else
@@ -32,7 +33,7 @@ load:
 	rm -r logger/out/fsae/da/pit
 	cp run.sh logger
 	cp exec_scripts/car.sh logger/exec_scripts
-	scp -r logger root@$(BEAGLEGBONE_IP):/root
+	scp -r logger da@$(BEAGLEGBONE_IP):/home/da
 
 stage:
 	git add -A

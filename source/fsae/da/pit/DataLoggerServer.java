@@ -2,15 +2,10 @@ package fsae.da.pit;
 
 import fsae.da.DataPoint;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 public class DataLoggerServer implements Runnable {
 

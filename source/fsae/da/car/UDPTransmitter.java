@@ -4,8 +4,8 @@ import fsae.da.DataPoint;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -15,24 +15,24 @@ import java.util.concurrent.TimeUnit;
  */
 public final class UDPTransmitter implements Runnable {
     // data transmission parameters
-    private InetAddress broadcastAddress;
-    private int broadcastPort;
+    private InetAddress multicastAddress;
+    private int multicastPort;
     private BlockingQueue<DataPoint> dataQueue;
 
     // signal end of program
     private boolean done = false;
 
     // save parameters for when a thread is started
-    public UDPTransmitter(InetAddress broadcastAddress, int broadcastPort, BlockingQueue<DataPoint> dataQueue) {
-        this.broadcastAddress = broadcastAddress;
-        this.broadcastPort = broadcastPort;
+    public UDPTransmitter(InetAddress multicastAddress, int multicastPort, BlockingQueue<DataPoint> dataQueue) {
+        this.multicastAddress = multicastAddress;
+        this.multicastPort = multicastPort;
         this.dataQueue = dataQueue;
     }
 
     @Override
     public void run() {
         // open a UDP socket
-        try(DatagramSocket broadcastSocket = new DatagramSocket()) {
+        try(MulticastSocket multicastSocket = new MulticastSocket()) {
             // work with one point at a time
             DataPoint currentPoint = null;
 
@@ -51,7 +51,7 @@ public final class UDPTransmitter implements Runnable {
                 // get the data point in bytes
                 // send bytes over UDP
                 byte[] rawBytes = (currentPoint.toString() + '\n').getBytes(StandardCharsets.US_ASCII);
-                broadcastSocket.send(new DatagramPacket(rawBytes, rawBytes.length, broadcastAddress, broadcastPort));
+                multicastSocket.send(new DatagramPacket(rawBytes, rawBytes.length, multicastAddress, multicastPort));
             }
         } catch (IOException e) {
             e.printStackTrace();
