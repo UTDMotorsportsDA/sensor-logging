@@ -32,8 +32,7 @@ load:
 	cp -r out logger
 	rm -r logger/out/fsae/da/pit
 	cp run.sh logger
-	cp exec_scripts/car.sh logger/exec_scripts
-	scp -r logger da@$(BEAGLEGBONE_IP):/home/da
+	scp -r logger $(user)@$(BEAGLEGBONE_IP):/home/$(user)
 
 stage:
 	git add -A

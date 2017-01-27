@@ -35,6 +35,23 @@ public class CarMain {
         }
         int multicastPort = Integer.parseInt(mcastPort);
 
+        String serviceName = props.getProperty("service_name");
+        if(serviceName == null) {
+            System.err.println("could not find service_name in " + args[0]);
+            System.exit(1);
+        }
+        String parametersPath = props.getProperty("parameters_location");
+        if(parametersPath == null) {
+            System.err.println("could not find parameters_location in " + args[0]);
+            System.exit(1);
+        }
+        String svcPort = props.getProperty("server_socket_port");
+        if(svcPort == null) {
+            System.err.println("could not find server_socket_port in " + args[0]);
+            System.exit(1);
+        }
+        int servicePort = Integer.parseInt(svcPort);
+
         // sanity check
         System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
         System.out.println("Config Filepath: " + args[1]);
@@ -45,6 +62,7 @@ public class CarMain {
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;
         UDPTransmitter UDPtx = null;
+        ServiceDiscoveryResponder SDR = null;
         BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
 
         try {
@@ -53,6 +71,9 @@ public class CarMain {
 
             // transmitter will send data points from the queue
             UDPtx = new UDPTransmitter(multicastAddress, multicastPort, dataQueue);
+
+            // responder sits on the network and notifies other devices of where to open a TCP socket
+            SDR = new ServiceDiscoveryResponder(multicastAddress, multicastPort, serviceName, servicePort, parametersPath);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -69,6 +90,10 @@ public class CarMain {
         Thread txThread = new Thread(UDPtx);
         txThread.start();
 
+        // open the service responder to support TCP connections
+        Thread responderThread = new Thread(SDR);
+        responderThread.start();
+
         // wait for user to quit
         Scanner stdin = new Scanner(System.in);
         while(true) {
@@ -80,9 +105,11 @@ public class CarMain {
         // quit
         logger.end();
         UDPtx.end();
+        SDR.end();
         try {
             loggerThread.join();
             txThread.join();
+            responderThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
