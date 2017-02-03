@@ -2,58 +2,81 @@ package fsae.da.car;
 
 import fsae.da.DataPoint;
 
-import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.net.InetAddress;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CarMain {
+    // args: parameter config file, sensor config file
     public static void main(String[] args) {
-        // communication parameters
-        final String BROADCAST_IP = args[0], PIT_IP = args[2];
-        final int BROADCAST_PORT = Integer.parseInt(args[1]), PIT_PORT = Integer.parseInt(args[3]);
-        Scanner stdin = new Scanner(System.in);
-
-        // sanity check
-        System.out.println("Broadcast Address: " + BROADCAST_IP + ":" + BROADCAST_PORT);
-        System.out.println("Pit Address: " + PIT_IP + ":" + PIT_PORT);
-        System.out.println("Config Filepath: " + args[4]);
-
-        // load sensors
-        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[4]);
-
-        // client to collect and enqueue data, transmitter to send/broadcast from the queue
-        DataLogger logger = null;
-        DataTransmitter tx = null;
-        BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
-
-        // destinations for the transmitter
-        ArrayList<OutputStream> streams = new ArrayList<>();
-
-        // try first time to make a socket
-        Socket clientSocket;
+        // load configuration file
+        Properties props = new Properties();
         try {
-            clientSocket = new Socket(PIT_IP, PIT_PORT);
-        } catch (IOException | SecurityException e) {
-            clientSocket = null;
-        }
-
-        try {
-            // open a TCP socket to the pit for reliability, get its output stream (only if connection succeeded)
-            if(clientSocket != null) streams.add(clientSocket.getOutputStream());
-
-            // transmitter will send data points from the queue
-            // let UnknownHostException propagate back here
-            tx = new DataTransmitter(dataQueue, streams, BROADCAST_IP, BROADCAST_PORT);
+            props.load(new FileInputStream(new File(args[0])));
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+            System.exit(1);
+        }
+
+        String multicastGroupName = props.getProperty("multicast_group");
+        if(multicastGroupName == null) {
+            System.err.println("could not find multicast_group in " + args[0]);
+            System.exit(1);
+        }
+        String mcastPort = props.getProperty("multicast_port");
+        if(mcastPort == null) {
+            System.err.println("could not find multicast_port in " + args[0]);
+            System.exit(1);
+        }
+        int multicastPort = Integer.parseInt(mcastPort);
+
+        String serviceName = props.getProperty("service_name");
+        if(serviceName == null) {
+            System.err.println("could not find service_name in " + args[0]);
+            System.exit(1);
+        }
+        String parametersPath = props.getProperty("parameters_location");
+        if(parametersPath == null) {
+            System.err.println("could not find parameters_location in " + args[0]);
+            System.exit(1);
+        }
+        String svcPort = props.getProperty("server_socket_port");
+        if(svcPort == null) {
+            System.err.println("could not find server_socket_port in " + args[0]);
+            System.exit(1);
+        }
+        int servicePort = Integer.parseInt(svcPort);
+
+        // sanity check
+        System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
+        System.out.println("Config Filepath: " + args[1]);
+
+        // load sensors
+        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[1]);
+
+        // client to collect and enqueue data, transmitter to broadcast from the queue
+        DataLogger logger = null;
+        UDPTransmitter UDPtx = null;
+        ServiceDiscoveryResponder SDR = null;
+        BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
+
+        try {
+            // get a proper InetAddress
+            InetAddress multicastAddress = InetAddress.getByName(multicastGroupName);
+
+            // transmitter will send data points from the queue
+            UDPtx = new UDPTransmitter(multicastAddress, multicastPort, dataQueue);
+
+            // responder sits on the network and notifies other devices of where to open a TCP socket
+            SDR = new ServiceDiscoveryResponder(multicastAddress, multicastPort, serviceName, servicePort, parametersPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
 
         // create the logger to enqueue data points from sensors
@@ -64,42 +87,29 @@ public class CarMain {
         loggerThread.start();
 
         // give TX a thread to preserve data integrity
-        Thread txThread = new Thread(tx);
+        Thread txThread = new Thread(UDPtx);
         txThread.start();
 
-        // wait for user to quit
-        while(true) {
-            if(clientSocket == null) { // keep trying to connect to the pit w/ 1-second timeouts
-                try {
-                    (clientSocket = new Socket()).connect(new InetSocketAddress(PIT_IP, PIT_PORT), 1000);
-                } catch (IOException | SecurityException e) {
-                    clientSocket = null;
-                    try { // usually here because the connection was refused immediately, wait before trying again
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    continue;
-                }
+        // open the service responder to support TCP connections
+        Thread responderThread = new Thread(SDR);
+        responderThread.start();
 
-                // we're here because connection succeeded, so add to stream list
-                try {
-                    streams.add(new BufferedOutputStream(clientSocket.getOutputStream()));
-                } catch (IOException e) {
-                    e.printStackTrace(); // most likely won't happen
-                }
-            }
-            if(stdin.hasNext()) // keep Q-for-quit function
+        // wait for user to quit
+        Scanner stdin = new Scanner(System.in);
+        while(true) {
+            if(stdin.hasNext()) // enter q to quit
                 if(Character.toUpperCase(stdin.next().charAt(0)) == 'Q')
                     break;
         }
 
         // quit
         logger.end();
-        tx.end();
+        UDPtx.end();
+        SDR.end();
         try {
             loggerThread.join();
             txThread.join();
+            responderThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
