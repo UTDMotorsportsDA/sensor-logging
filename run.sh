@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CLASSPATH=./out:/usr/lib/jvm/added/*
+CLASSPATH=out:lib/*
 
 if [ $# -lt 1 ]; then
 	echo "specify a run target like car or pit";
@@ -8,7 +8,7 @@ if [ $# -lt 1 ]; then
 fi
 
 if [ $1 == "pit" ]; then
-	java fsae.da.pit.PitMain ${@:2}
+	java -cp $CLASSPATH fsae.da.pit.PitMain ${@:2}
 elif [ $1 == "car" ]; then
 	java fsae.da.car.CarMain ${@:2}
 else

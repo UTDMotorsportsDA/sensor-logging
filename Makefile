@@ -1,8 +1,9 @@
 ARM_CROSS_COMPILER=arm-linux-gnueabihf-gcc
 NATIVE_SOURCE_DIR=JNI/src
-CLASSPATH=./out:/usr/lib/jvm/added/*
 NATIVE_OBJ_DIR=JNI/lib
 BEAGLEGBONE_IP=192.168.3.142
+
+export CLASSPATH=out:lib/*
 
 all: common pit car native
 

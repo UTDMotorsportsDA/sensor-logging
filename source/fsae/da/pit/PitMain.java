@@ -3,10 +3,16 @@ package fsae.da.pit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.Scanner;
 
+/* Classes in this package are used purely to aid in the development of the .car package.
+ * The .pit package may be used as an example, but no guarantees toward quality are made.
+ */
 public class PitMain {
     public static void main(String[] args) {
         // load configuration file
@@ -33,21 +39,31 @@ public class PitMain {
         // sanity check
         System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
 
-        MulticastListener listener = null;
-        try {
-            listener = new MulticastListener(InetAddress.getByName(multicastGroupName), multicastPort);
-        } catch(IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+//        MulticastListener listener = null;
+//        try {
+//            listener = new MulticastListener(InetAddress.getByName(multicastGroupName), multicastPort);
+//        } catch(IOException e) {
+//            e.printStackTrace();
+//            System.exit(1);
+//        }
+//
+//        // start on separate thread to allow additional work
+//        new Thread(listener).start();
 
-        // start on separate thread to allow additional work
-        new Thread(listener).start();
-
-        // wait for some user input before ending
+        // wait for some user input
         new Scanner(System.in).next();
 
-        // quit
-        listener.end();
+        // one shot
+        try(DatagramSocket skt = new DatagramSocket()) {
+            skt.setReuseAddress(true);
+            String msg = "{\"discovery request\":{\"name\":\"" + props.getProperty("service_name") + "\"}}";
+            byte[] bytes = msg.getBytes(StandardCharsets.US_ASCII);
+            skt.send(new DatagramPacket(bytes, bytes.length, InetAddress.getByName(multicastGroupName), multicastPort));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        // quit
+//        listener.end();
     }
 }

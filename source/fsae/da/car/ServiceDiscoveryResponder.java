@@ -1,6 +1,9 @@
 package fsae.da.car;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -104,7 +107,7 @@ public class ServiceDiscoveryResponder implements Runnable {
 
             // grab the address this machine holds on the multicast group
             InetAddress thisAddress = probeForMyAddress(listenSocket, new DatagramPacket(new byte[0], 0, multicastGroup, multicastPort));
-            listenSocket.setInterface(thisAddress); // good practice
+//            listenSocket.setInterface(thisAddress); // good practice
 
             // debug
             System.out.println("Operating at address " + thisAddress.getHostName());
@@ -118,14 +121,39 @@ public class ServiceDiscoveryResponder implements Runnable {
             responseObject.put("discovery response", contents);
 
             // debug
-            System.out.println("prepared response:\n" + getResponse());
+            System.out.println("example response:\n" + getResponse());
 
+            // persistent JSONParser to decode messages
+            JSONParser parser = new JSONParser();
             while(!done) {
-                // get a message
+                // get a packet
                 listenSocket.receive(rcvPkt);
 
+                // extract contained message
+                String message = new String(rcvPkt.getData(), 0, rcvPkt.getLength(), StandardCharsets.US_ASCII);
+
                 // dump the message to console
-                System.out.println(new String(rcvPkt.getData(), 0, rcvPkt.getLength(), StandardCharsets.US_ASCII));
+                System.out.println(message);
+
+                Object obj;
+                try {
+                    obj = parser.parse(message);
+                } catch (ParseException e) {
+                    continue; // not JSON data
+                }
+
+                // if this is a JSONObject (like we expect a discovery request to be)
+                if(obj instanceof JSONObject) {
+                    // if the object has a sole discovery response field
+                    JSONObject jObj = (JSONObject)obj;
+                    // make sure there's one map entry, make sure it's a discovery request, verify service name
+                    if(jObj.size() == 1 && null != (contents = (JSONObject)jObj.get("discovery request")) && contents.get("name").equals(serviceName)) {
+                        System.out.println("! discovery request received");
+//                        // respond directly to requestor
+//                        byte[] responseData = getResponse().getBytes(StandardCharsets.US_ASCII);
+//                        outgoingSocket.send(new DatagramPacket(responseData, responseData.length, rcvPkt.getAddress(), multicastPort));
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
