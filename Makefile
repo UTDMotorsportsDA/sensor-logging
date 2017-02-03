@@ -1,20 +1,19 @@
 ARM_CROSS_COMPILER=arm-linux-gnueabihf-gcc
-CLASSPATH=out/
 NATIVE_SOURCE_DIR=JNI/src
-CLASSPATH=out/
+CLASSPATH=./out:/usr/lib/jvm/added/*
 NATIVE_OBJ_DIR=JNI/lib
 BEAGLEGBONE_IP=192.168.3.142
 
 all: common pit car native
 
 common:
-	javac -cp $(CLASSPATH) source/fsae/da/*.java -d $(CLASSPATH)
+	javac source/fsae/da/*.java -d out/
 
 pit:
-	javac -cp $(CLASSPATH) source/fsae/da/pit/*.java -d $(CLASSPATH)
+	javac source/fsae/da/pit/*.java -d out/
 
 car:
-	javac -cp $(CLASSPATH) source/fsae/da/car/*.java -d $(CLASSPATH)
+	javac source/fsae/da/car/*.java -d out/
 
 native:
 	javah -jni -cp out -d JNI/src fsae.da.car.NativeI2C

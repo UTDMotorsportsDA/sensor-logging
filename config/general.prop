@@ -6,4 +6,5 @@ multicast_port = 6000
 
 service_name = Halley's Comet Data Acquisitor
 server_socket_port = 9897
-parameters_location
+parameters_location = test_params.txt
+

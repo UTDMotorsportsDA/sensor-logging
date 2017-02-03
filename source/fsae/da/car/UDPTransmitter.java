@@ -1,6 +1,7 @@
 package fsae.da.car;
 
 import fsae.da.DataPoint;
+import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -33,6 +34,7 @@ public final class UDPTransmitter implements Runnable {
     public void run() {
         // open a UDP socket
         try(DatagramSocket multicastSocket = new DatagramSocket()) {
+            JSONObject jObj = new JSONObject();
             // work with one point at a time
             DataPoint currentPoint = null;
 
@@ -48,9 +50,11 @@ public final class UDPTransmitter implements Runnable {
                 // go again if there's no data to work on
                 if(currentPoint == null) continue;
 
-                // get the data point in bytes
-                // send bytes over UDP
-                byte[] rawBytes = ("<data>" + currentPoint.toString() + "</data>").getBytes(StandardCharsets.US_ASCII);
+                // encode data in JSON
+                // get the JSON char array
+                // send over UDP
+                jObj.put("data", currentPoint.toString());
+                byte[] rawBytes = (jObj.toJSONString()).getBytes(StandardCharsets.US_ASCII);
                 multicastSocket.send(new DatagramPacket(rawBytes, rawBytes.length, multicastAddress, multicastPort));
             }
         } catch (IOException e) {
