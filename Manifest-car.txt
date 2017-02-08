@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: 1.8.0_121 (Oracle Corporation)
+Main-Class: fsae.da.car.CarMain
+Class-Path: lib/json-simple-1.1.1.jar
