@@ -1,0 +1,12 @@
+Pit Software Module Design Guidelines
+
+* Please keep your code clean, indented, and readable - always consider the person trying to understand your work.
+* Use Java version 1.8 for compatibility
+* With completed modules, include a brief documentation with the following information
+	* classes included and their methods
+	* dependencies outside default Java classes (minimize these)
+	* how another programmer is meant to use your module
+	* limitations on what input can be provided
+	* links to additional references
+	* anything else someone should know about your module
+* Please keep compiled files (.class and .jar) out of the Github repository
