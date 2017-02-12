@@ -1,0 +1,14 @@
+Instructions:
+
+To contribute, please do the following:
+
+* Read the module you want to claim
+* Fill in your name and expected completion date in the spreadsheet
+* Develop and test
+* Organize source and documentation
+* Commit your code to GitHub (always pull changes before you push!)
+* Mark your module as completed in the spreadsheet.
+
+Take advantage of anything and everything in the car software you think might help.
+
+Java's full reference documentation is available at https://docs.oracle.com/javase/8/ (or you can Google "class_name se 8").

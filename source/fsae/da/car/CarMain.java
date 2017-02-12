@@ -6,18 +6,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CarMain {
+    private static String DEFAULT_CONFIG_FILE = "config/general.prop";
+    private static String DEFAULT_SENSORS_FILE = "config/sensor.prop";
+    private static String TEST_SENSORS_FILE = "config/fake_sensor.prop";
+
     // args: parameter config file, sensor config file
     public static void main(String[] args) {
-        // load configuration file
+        // load general configuration
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File(args[0])));
+            props.load(new FileInputStream(new File(DEFAULT_CONFIG_FILE)));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -54,10 +59,15 @@ public class CarMain {
 
         // sanity check
         System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
-        System.out.println("Config Filepath: " + args[1]);
+        System.out.println("Config Filepath: " + DEFAULT_CONFIG_FILE);
 
         // load sensors
-        Sensor[] sensors = ConfigLoader.getSensorsFromFile(args[1]);
+        // "test" option
+        Sensor[] sensors = null;
+        if(Arrays.asList(args).contains("-t"))
+            sensors = ConfigLoader.getSensorsFromFile(TEST_SENSORS_FILE);
+        else
+            sensors = ConfigLoader.getSensorsFromFile(DEFAULT_SENSORS_FILE);
 
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;

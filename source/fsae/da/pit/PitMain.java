@@ -18,7 +18,7 @@ public class PitMain {
         // load configuration file
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File(args[0])));
+            props.load(new FileInputStream(new File("config/general.prop")));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);

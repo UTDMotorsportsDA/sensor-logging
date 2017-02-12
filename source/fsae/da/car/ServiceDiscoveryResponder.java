@@ -107,7 +107,7 @@ public class ServiceDiscoveryResponder implements Runnable {
 
             // grab the address this machine holds on the multicast group
             InetAddress thisAddress = probeForMyAddress(listenSocket, new DatagramPacket(new byte[0], 0, multicastGroup, multicastPort));
-//            listenSocket.setInterface(thisAddress); // good practice
+            listenSocket.setInterface(thisAddress); // good practice
 
             // debug
             System.out.println("Operating at address " + thisAddress.getHostName());
@@ -132,9 +132,6 @@ public class ServiceDiscoveryResponder implements Runnable {
                 // extract contained message
                 String message = new String(rcvPkt.getData(), 0, rcvPkt.getLength(), StandardCharsets.US_ASCII);
 
-                // dump the message to console
-                System.out.println(message);
-
                 Object obj;
                 try {
                     obj = parser.parse(message);
@@ -148,10 +145,10 @@ public class ServiceDiscoveryResponder implements Runnable {
                     JSONObject jObj = (JSONObject)obj;
                     // make sure there's one map entry, make sure it's a discovery request, verify service name
                     if(jObj.size() == 1 && null != (contents = (JSONObject)jObj.get("discovery request")) && contents.get("name").equals(serviceName)) {
-                        System.out.println("! discovery request received");
-//                        // respond directly to requestor
-//                        byte[] responseData = getResponse().getBytes(StandardCharsets.US_ASCII);
-//                        outgoingSocket.send(new DatagramPacket(responseData, responseData.length, rcvPkt.getAddress(), multicastPort));
+                        System.out.println("discovery request received: \n\t" + message);
+                        // respond directly to requestor
+                        byte[] responseData = getResponse().getBytes(StandardCharsets.US_ASCII);
+                        outgoingSocket.send(new DatagramPacket(responseData, responseData.length, rcvPkt.getAddress(), multicastPort));
                     }
                 }
             }
