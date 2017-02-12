@@ -1,0 +1,16 @@
+Prerequisites:
+	You'll need to know how to commit, pull, and push code changes to GitHub. To be added as a collaborator, contact @Brian Tilley on any of the relevant GroupMe chats.
+	Please have a quick read through the guidelines.
+
+To contribute, please do the following:
+
+* Read the module you want to claim
+* Fill in your name and expected completion date in the spreadsheet
+* Develop and test
+* Organize source and documentation (.java source files go in source/fsae/da/pit/)
+* Commit your code to GitHub (always pull changes before you push!)
+* Mark your module as completed in the spreadsheet.
+
+Take advantage of anything and everything in the car software you think might help.
+
+Java's full reference documentation is available at https://docs.oracle.com/javase/8/ (or you can Google "classname se 8").

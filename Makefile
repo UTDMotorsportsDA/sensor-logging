@@ -29,16 +29,6 @@ else
 	$(ARM_CROSS_COMPILER) -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -shared -fPIC -o $(NATIVE_OBJ_DIR)/libnativei2c.so $(NATIVE_SOURCE_DIR)/fsae_da_car_NativeI2C.c
 endif
 
-# load:
-# 	cp -r JNI logger
-# 	rm -r logger/JNI/src
-# 	cp -r config logger
-# 	cp -r out logger
-# 	cp -r lib logger
-# 	rm -r logger/out/fsae/da/pit
-# 	cp run.sh logger
-# 	scp -r logger $(user)@$(BEAGLEGBONE_IP):/home/$(user)
-
 stage:
 	git add -A
 	git status
