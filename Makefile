@@ -6,9 +6,11 @@ BEAGLEGBONE_IP=192.168.3.142
 export CLASSPATH=class/:lib/*
 
 all: common pit car native
-	jar cfm car.jar Manifest-car.txt -C class/ fsae/
-	jar cfe pit.jar fsae.da.pit.PitMain -C class fsae/
+	jar cfm car.jar Manifest-car.txt -C class/ fsae/ config/general.prop config/sensor.prop config/test_params.txt
+	jar cfm car_sim.jar Manifest-car_sim.txt -C class/ fsae/ config/simulation
+	jar cfe pit.jar fsae.da.pit.PitMain -C class fsae/ config/general.prop
 	zip -qd car.jar fsae/da/pit/*
+	zip -qd car_sim.jar fsae/da/pit/*
 	zip -qd pit.jar fsae/da/car/*
 
 common:
