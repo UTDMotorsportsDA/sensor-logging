@@ -2,25 +2,26 @@ ARM_CROSS_COMPILER=arm-linux-gnueabihf-gcc
 NATIVE_SOURCE_DIR=source/JNI
 NATIVE_OBJ_DIR=lib/JNI
 BEAGLEGBONE_IP=192.168.3.142
+CLASS_DIR=class
 
-export CLASSPATH=class/:lib/*
+export CLASSPATH=$(CLASS_DIR):lib/*
 
 all: common pit car native
-	jar cfm car.jar Manifest-car.txt -C class/ fsae/ config/general.prop config/sensor.prop config/test_params.txt
-	jar cfm car_sim.jar Manifest-car_sim.txt -C class/ fsae/ config/simulation
-	jar cfe pit.jar fsae.da.pit.PitMain -C class fsae/ config/general.prop
+	jar cfm car.jar Manifest-car.txt -C $(CLASS_DIR) fsae/ config/general.prop config/sensor.prop config/test_params.txt
+	jar cfm car_sim.jar Manifest-car_sim.txt -C $(CLASS_DIR) fsae/ config/simulation
+	jar cfe pit.jar fsae.da.pit.PitMain -C $(CLASS_DIR) fsae/ config/general.prop
 	zip -qd car.jar fsae/da/pit/*
 	zip -qd car_sim.jar fsae/da/pit/*
 	zip -qd pit.jar fsae/da/car/*
 
 common:
-	javac source/fsae/da/*.java -d class/
+	javac source/fsae/da/*.java -d $(CLASS_DIR)
 
 pit:
-	javac source/fsae/da/pit/*.java -d class/
+	javac source/fsae/da/pit/*.java -d $(CLASS_DIR)
 
 car:
-	javac source/fsae/da/car/*.java -d class/
+	javac source/fsae/da/car/*.java -d $(CLASS_DIR)
 
 native:
 	javah -jni -d $(NATIVE_SOURCE_DIR) fsae.da.car.NativeI2C
@@ -36,4 +37,4 @@ stage:
 	git status
 
 clean:
-	rm -r class/*
+	rm -r *.jar $(CLASS_DIR)/*

@@ -12,7 +12,6 @@ public class DataLogger implements Runnable {
     private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
     private Queue<DataPoint> outputQueue;
     boolean done = false;
-    private static final RefreshType DLC_REFRESH_TYPE = RefreshType.PIT;
     private Thread clientThread = null;
 
     public DataLogger(Sensor[] sensors, Queue<DataPoint> outputQueue) {
@@ -21,7 +20,7 @@ public class DataLogger implements Runnable {
         // wrap sensors in objects that implement
         // Comparable for the priority queue
         for(Sensor s : sensors) {
-            sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
+            sensorQueue.add(s.asComparable(RefreshType.LOGGING_UPDATE));
         }
     }
 
@@ -29,10 +28,10 @@ public class DataLogger implements Runnable {
     // removes sensor if possible and adds; different from requeueComparableSensor
     public synchronized void renewSensor(Sensor s) {
         // if sensor is in queue, remove
-        sensorQueue.remove(s.asComparable(DLC_REFRESH_TYPE));
+        sensorQueue.remove(s.asComparable(RefreshType.LOGGING_UPDATE));
 
         // add sensor to queue (if sensor was in queue, moves it to the new update period)
-        sensorQueue.add(s.asComparable(DLC_REFRESH_TYPE));
+        sensorQueue.add(s.asComparable(RefreshType.LOGGING_UPDATE));
 
         // kick the logger out of its current wait period to poll for next sensor
         // if a sensor has gone critical, it needs to be handled ASAP

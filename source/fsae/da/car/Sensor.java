@@ -16,6 +16,9 @@ public abstract class Sensor {
     // 2 elements: value update, pit update
     private Duration[] refreshErrors = {Duration.ZERO, Duration.ZERO};
 
+    // store ComparableSensors instead of wasting time re-computing
+    ComparableSensor[] comparables = { new ComparableSensor(this, RefreshType.VALUE_UPDATE), new ComparableSensor(this, RefreshType.LOGGING_UPDATE) };
+
     // children shall overload this constructor, adding 'criticalThreshold' parameter(s)
     // and call super(...) to handle first 2 parameters
     public Sensor(String label, Duration[] timesBetweenUpdates) throws IllegalArgumentException {
@@ -46,7 +49,17 @@ public abstract class Sensor {
     public String getLabel() { return name; }
     public boolean isCritical() { return critical; }
 
-    public ComparableSensor asComparable(RefreshType rType) { return new ComparableSensor(this, rType); }
+    // return stored ComparableSensors
+    public ComparableSensor asComparable(RefreshType rType) {
+        switch (rType) {
+            case VALUE_UPDATE:
+                return comparables[0];
+            case LOGGING_UPDATE:
+                return comparables[1];
+            default:
+                return null; // shouldn't ever occur
+        }
+    }
 
     public Instant nextRefresh(RefreshType rType) {
         int typeOffset = 0;
@@ -54,7 +67,7 @@ public abstract class Sensor {
             case VALUE_UPDATE:
                 typeOffset = 0;
                 break;
-            case PIT:
+            case LOGGING_UPDATE:
                 typeOffset = 1;
                 break;
             default:

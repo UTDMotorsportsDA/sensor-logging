@@ -15,14 +15,6 @@ public class ComparableSensor implements Comparable<ComparableSensor> {
     public Instant nextRefresh() { return s.nextRefresh(refresh); }
 
     @Override
-    public boolean equals(Object cs) {
-        if(cs instanceof ComparableSensor)
-            return this.s.equals(((ComparableSensor)cs).s) && this.refresh == ((ComparableSensor)cs).refresh;
-        else
-            return false;
-    }
-
-    @Override
     public int compareTo(ComparableSensor cs) {
         return s.nextRefresh(refresh).compareTo(cs.s.nextRefresh(cs.refresh));
     }
