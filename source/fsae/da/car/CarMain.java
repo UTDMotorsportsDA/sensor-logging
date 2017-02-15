@@ -19,10 +19,25 @@ public class CarMain {
 
     // args: parameter config file, sensor config file
     public static void main(String[] args) {
+        String chosenConfigFile, chosenSensorsFile;
+
+        // select config files (allow for specifying)
+        if(args.length >= 2) {
+            chosenConfigFile = args[0];
+            chosenSensorsFile = args[1];
+        }
+        else {
+            chosenConfigFile = DEFAULT_CONFIG_FILE;
+            if(Arrays.asList(args).contains("-t"))
+                chosenSensorsFile = TEST_SENSORS_FILE;
+            else
+                chosenSensorsFile = DEFAULT_SENSORS_FILE;
+        }
+
         // load general configuration
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File(DEFAULT_CONFIG_FILE)));
+            props.load(new FileInputStream(new File(chosenConfigFile)));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -57,17 +72,13 @@ public class CarMain {
         }
         int servicePort = Integer.parseInt(svcPort);
 
-        // sanity check
-        System.out.println("Multicast Address: " + multicastGroupName + ":" + multicastPort);
-        System.out.println("Config Filepath: " + DEFAULT_CONFIG_FILE);
-
         // load sensors
-        // "test" option
-        Sensor[] sensors = null;
-        if(Arrays.asList(args).contains("-t"))
-            sensors = ConfigLoader.getSensorsFromFile(TEST_SENSORS_FILE);
-        else
-            sensors = ConfigLoader.getSensorsFromFile(DEFAULT_SENSORS_FILE);
+        Sensor[] sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
+
+        // sanity check
+        System.out.println("Multicast Group: " + multicastGroupName + ":" + multicastPort);
+        System.out.println("Config Filepath: " + chosenConfigFile);
+        System.out.println("Sensors Filepath: " + chosenSensorsFile);
 
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;
@@ -77,13 +88,13 @@ public class CarMain {
 
         try {
             // get a proper InetAddress
-            InetAddress multicastAddress = InetAddress.getByName(multicastGroupName);
+            InetAddress multicastGroup = InetAddress.getByName(multicastGroupName);
 
             // transmitter will send data points from the queue
-            UDPtx = new UDPTransmitter(multicastAddress, multicastPort, dataQueue);
+            UDPtx = new UDPTransmitter(multicastGroup, multicastPort, dataQueue);
 
             // responder sits on the network and notifies other devices of where to open a TCP socket
-            SDR = new ServiceDiscoveryResponder(multicastAddress, multicastPort, serviceName, servicePort, parametersPath);
+            SDR = new ServiceDiscoveryResponder(multicastGroup, multicastPort, serviceName, servicePort, parametersPath);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);

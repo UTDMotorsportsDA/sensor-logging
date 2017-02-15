@@ -110,7 +110,7 @@ public class ServiceDiscoveryResponder implements Runnable {
             listenSocket.setInterface(thisAddress); // good practice
 
             // debug
-            System.out.println("Operating at address " + thisAddress.getHostName());
+            System.out.println("ServiceDiscoveryResponder Operating at address " + thisAddress.getHostName());
 
             // prepare a response for requestors
             responseObject = new JSONObject();
