@@ -12,12 +12,12 @@ extern "C" {
 #include <unistd.h>
 #include <string.h>
 
-#include "fsae_da_car_NativeI2C.h"
+#include "edu_utdallas_utdmotorsports_car_NativeI2C.h"
 
 #define I2C_DEVICE_FILENAME_PREFIX "/dev/i2c-"
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1openDevice(JNIEnv *env, jclass cls, jint deviceNumber) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1openDevice(JNIEnv *env, jclass cls, jint deviceNumber) {
     // limit filename range
 	if(deviceNumber < 0 || deviceNumber > 127)
 		return -1;
@@ -39,12 +39,12 @@ Java_fsae_da_car_NativeI2C_n_1openDevice(JNIEnv *env, jclass cls, jint deviceNum
 }
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1setSlave(JNIEnv *env, jclass cls, jbyte slaveAddress, jint deviceFileDescriptor) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1setSlave(JNIEnv *env, jclass cls, jbyte slaveAddress, jint deviceFileDescriptor) {
     return ioctl(deviceFileDescriptor, I2C_SLAVE, slaveAddress);
 }
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1write(JNIEnv *env, jclass cls, jbyteArray _bytes, jint numBytes, jint deviceFileDescriptor) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1write(JNIEnv *env, jclass cls, jbyteArray _bytes, jint numBytes, jint deviceFileDescriptor) {
     if((*env)->GetArrayLength(env, _bytes) < numBytes) return -1;
 
     char* bytes = (char*)malloc(numBytes);
@@ -61,7 +61,7 @@ Java_fsae_da_car_NativeI2C_n_1write(JNIEnv *env, jclass cls, jbyteArray _bytes, 
 }
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1writeByte(JNIEnv *env, jclass cls, jbyte byte, jint deviceFileDescriptor) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1writeByte(JNIEnv *env, jclass cls, jbyte byte, jint deviceFileDescriptor) {
     if(write(deviceFileDescriptor, &byte, 1) == 1)
     	return 0;
     else
@@ -69,7 +69,7 @@ Java_fsae_da_car_NativeI2C_n_1writeByte(JNIEnv *env, jclass cls, jbyte byte, jin
 }
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1read(JNIEnv *env, jclass cls, jbyteArray _buffer, jint deviceFileDescriptor) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1read(JNIEnv *env, jclass cls, jbyteArray _buffer, jint deviceFileDescriptor) {
     int numBytes = (*env)->GetArrayLength(env, _buffer);
     if(numBytes < 1)
         return -1;
@@ -88,7 +88,7 @@ Java_fsae_da_car_NativeI2C_n_1read(JNIEnv *env, jclass cls, jbyteArray _buffer, 
 }
 
 JNIEXPORT jint JNICALL
-Java_fsae_da_car_NativeI2C_n_1readByte(JNIEnv *env, jclass cls, jint deviceFileDescriptor) {
+Java_edu_utdallas_utdmotorsports_car_NativeI2C_n_1readByte(JNIEnv *env, jclass cls, jint deviceFileDescriptor) {
     char buffer;
 	if(read(deviceFileDescriptor, &buffer, 1) == 1)
 		return buffer;

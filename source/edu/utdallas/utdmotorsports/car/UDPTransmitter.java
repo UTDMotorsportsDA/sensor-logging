@@ -1,6 +1,6 @@
-package fsae.da.car;
+package edu.utdallas.utdmotorsports.car;
 
-import fsae.da.DataPoint;
+import edu.utdallas.utdmotorsports.DataPoint;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

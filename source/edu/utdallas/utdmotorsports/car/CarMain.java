@@ -1,10 +1,11 @@
-package fsae.da.car;
+package edu.utdallas.utdmotorsports.car;
 
-import fsae.da.DataPoint;
+import edu.utdallas.utdmotorsports.DataPoint;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.*;
@@ -32,16 +33,27 @@ public class CarMain {
             else
                 chosenSensorsFile = DEFAULT_SENSORS_FILE;
         }
+        // filenames starting with "/" and "./" are later interpreted as being outside JAR
+        if(chosenConfigFile.charAt(0) == '/' || chosenConfigFile.substring(0, 2).equals("./"))
+            System.out.println("retreiving " + chosenConfigFile + " from this filesystem (not the JAR)");
+        if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
+            System.out.println("retreiving " + chosenSensorsFile + " from this filesystem (not the JAR)");
 
         // load general configuration
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(new File(chosenConfigFile)));
+            if(chosenConfigFile.charAt(0) == '/' || chosenConfigFile.substring(0, 2).equals("./"))
+                // get the config file from the user's filesystem
+                props.load(new FileInputStream(new File(chosenConfigFile)));
+            else
+                // get the config file saved in this JAR
+                props.load(CarMain.class.getResourceAsStream("/" + chosenConfigFile));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
 
+        // pull network parameters from general config file
         String multicastGroupName = props.getProperty("multicast_group");
         if(multicastGroupName == null) {
             System.err.println("could not find multicast_group in " + args[0]);
@@ -72,7 +84,13 @@ public class CarMain {
         int servicePort = Integer.parseInt(svcPort);
 
         // load sensors
-        Sensor[] sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
+        Sensor[] sensors;
+        if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
+            // get the sensors file from the user's filesystem
+            sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
+        else
+            // get the sensors file saved in this JAR
+            sensors = ConfigLoader.getSensorsFromFile(CarMain.class.getResourceAsStream("/" + chosenSensorsFile));
 
         // sanity check
         System.out.println("Multicast Group: " + multicastGroupName + ":" + multicastPort);
@@ -137,15 +155,30 @@ public class CarMain {
 }
 
 final class ConfigLoader {
+
+    // load sensors given a text file name
     public static Sensor[] getSensorsFromFile(String filename) {
+        try {
+            return getSensorsFromFile(new FileInputStream(new File(filename)));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        return null; // will never be reached
+    }
+
+    // load sensors from an input stream
+    public static Sensor[] getSensorsFromFile(InputStream fileStream) {
         ArrayList<Sensor> sensors = new ArrayList<>();
         Properties props = new Properties();
 
         // load configuration file
         try {
-            props.load(new FileInputStream(new File(filename)));
+            props.load(fileStream);
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(1);
         }
 
         // for every property in the file...

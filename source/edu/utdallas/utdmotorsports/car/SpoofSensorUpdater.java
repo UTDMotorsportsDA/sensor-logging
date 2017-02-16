@@ -1,4 +1,4 @@
-package fsae.da.car;
+package edu.utdallas.utdmotorsports.car;
 
 // extending base SensorUpdater class is optional, but potentially opens up optimization
 public class SpoofSensorUpdater extends SensorUpdater {

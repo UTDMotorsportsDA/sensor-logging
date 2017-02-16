@@ -1,6 +1,4 @@
-package fsae.da;
-
-import fsae.da.car.CarMain;
+package edu.utdallas.utdmotorsports.car;
 
 /**
  * start a simulation of the car software for pit testing purposes

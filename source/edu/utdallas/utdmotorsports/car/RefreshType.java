@@ -1,4 +1,4 @@
-package fsae.da.car;
+package edu.utdallas.utdmotorsports.car;
 
 // used in ComparableSensor
 public enum RefreshType {
