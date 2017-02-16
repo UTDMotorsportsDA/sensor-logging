@@ -9,6 +9,7 @@ JAR_DEST=jar
 export CLASSPATH=$(CLASS_DIR):lib/*
 
 all: common pit car native
+	jar -xf lib/json-simple-1.1.1.jar org && mv org $(CLASS_DIR)
 	jar cfm $(JAR_DEST)/car.jar $(MANIFEST_DIR)/Manifest-car.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/
 	jar cfm $(JAR_DEST)/car_sim.jar $(MANIFEST_DIR)/Manifest-car_sim.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/simulation
 	jar cfe $(JAR_DEST)/pit.jar edu.utdallas.utdmotorsports.PitMain -C $(CLASS_DIR) edu/ config/general.prop
@@ -39,4 +40,4 @@ stage:
 	git status
 
 clean:
-	rm -r $(JAR_DEST)/*.jar $(CLASS_DIR)/edu/
+	rm -r $(JAR_DEST)/*.jar $(CLASS_DIR)/*
