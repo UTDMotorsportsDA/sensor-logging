@@ -1,11 +1,14 @@
 Prerequisites:
-	You'll need to know how to commit, pull, and push code changes to GitHub. To be added as a collaborator, contact @Brian Tilley on any of the relevant GroupMe chats.
-	Please have a quick read through the guidelines.
+	If you can't access the spreadsheet, message Brian Tilley or Derrick Heydari to be added to the Data Acquisition Box folder.
+	
+	You'll need to know how to commit, pull, and push code changes to GitHub. To be added as a collaborator, contact Brian Tilley on any of the relevant GroupMe chats.
+	
+	Please read through the guidelines.
 
 To contribute, please do the following:
 
 * Read the module you want to claim
-* Fill in your name and expected completion date in the spreadsheet
+* Fill in your name and expected completion date in the spreadsheet (located in Box folder)
 * Develop and test
 * Organize source and documentation (.java source files go in source/fsae/da/pit/)
 * Commit your code to GitHub (always pull changes before you push!)
