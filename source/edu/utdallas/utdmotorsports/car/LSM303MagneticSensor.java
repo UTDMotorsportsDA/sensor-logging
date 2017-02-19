@@ -2,7 +2,6 @@ package edu.utdallas.utdmotorsports.car;
 
 import edu.utdallas.utdmotorsports.DataPoint;
 
-import javax.xml.crypto.Data;
 import java.time.Duration;
 import java.time.Instant;
 

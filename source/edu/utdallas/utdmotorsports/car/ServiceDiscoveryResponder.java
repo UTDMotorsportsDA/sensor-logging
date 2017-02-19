@@ -1,19 +1,17 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.Stoppable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 
 // responds to requests on the multicast group with TCP connection information
-public class ServiceDiscoveryResponder implements Runnable {
+public class ServiceDiscoveryResponder implements Runnable, Stoppable {
     // number of messages to test over the network to find the machine's IP address
     private static final int IP_CHECK_COUNT = 5;
 
@@ -108,6 +106,9 @@ public class ServiceDiscoveryResponder implements Runnable {
             InetAddress thisAddress = probeForMyAddress(listenSocket, new DatagramPacket(new byte[0], 0, multicastGroup, multicastPort));
             listenSocket.setInterface(thisAddress); // good practice
 
+            // make sure listenSocket times out if it's been too long (1 second)
+            listenSocket.setSoTimeout(1000);
+
             // debug
             System.out.println("ServiceDiscoveryResponder Operating at address " + thisAddress.getHostName());
 
@@ -126,7 +127,8 @@ public class ServiceDiscoveryResponder implements Runnable {
             JSONParser parser = new JSONParser();
             while(!done) {
                 // get a packet
-                listenSocket.receive(rcvPkt);
+                try { listenSocket.receive(rcvPkt); }
+                catch (SocketTimeoutException e) { continue; }
 
                 // extract contained message
                 String message = new String(rcvPkt.getData(), 0, rcvPkt.getLength(), StandardCharsets.US_ASCII);
@@ -152,11 +154,13 @@ public class ServiceDiscoveryResponder implements Runnable {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
+            if(!done) {
+                e.printStackTrace();
+            }
         }
     }
 
     // stop the thread
-    public void end() { done = true; }
+
+    public void quit() { done = true; }
 }

@@ -1,6 +1,9 @@
 package edu.utdallas.utdmotorsports.car;
 
-// extending base SensorUpdater class is optional, but potentially opens up optimization
+/**
+ * example on adding functionality to default SensorUpdater
+ * extending base SensorUpdater class is optional, but potentially opens up optimization
+ */
 public class SpoofSensorUpdater extends SensorUpdater {
     public SpoofSensorUpdater(DataLogger logger) { super(logger); }
     public SpoofSensorUpdater(DataLogger logger, Sensor[] sensors) { super(logger, sensors); }

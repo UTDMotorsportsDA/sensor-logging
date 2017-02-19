@@ -20,8 +20,16 @@ public class CarMain {
     private static String DEFAULT_CONFIG_FILE = "config/general.prop";
     private static String DEFAULT_SENSORS_FILE = "config/sensor.prop";
 
-    // args: parameter config file, sensor config file
-    public static void main(String[] args) {
+    // configurable parameters
+    private static String multicastGroupName;
+    private static int multicastPort;
+    private static String serviceName;
+    private static String parametersPath;
+    private static int servicePort;
+    private static ArrayList<Sensor> sensors;
+
+    private static void loadConfigs(String[] args) {
+        // these contain final selection of config
         String chosenConfigFile, chosenSensorsFile;
 
         // select config files (allow for specifying)
@@ -54,7 +62,7 @@ public class CarMain {
         }
 
         // pull network parameters from general config file
-        String multicastGroupName = props.getProperty("multicast_group");
+        multicastGroupName = props.getProperty("multicast_group");
         if(multicastGroupName == null) {
             System.err.println("could not find multicast_group in " + args[0]);
             System.exit(1);
@@ -64,14 +72,14 @@ public class CarMain {
             System.err.println("could not find multicast_port in " + args[0]);
             System.exit(1);
         }
-        int multicastPort = Integer.parseInt(mcastPort);
+        multicastPort = Integer.parseInt(mcastPort);
 
-        String serviceName = props.getProperty("service_name");
+        serviceName = props.getProperty("service_name");
         if(serviceName == null) {
             System.err.println("could not find service_name in " + args[0]);
             System.exit(1);
         }
-        String parametersPath = props.getProperty("parameters_location");
+        parametersPath = props.getProperty("parameters_location");
         if(parametersPath == null) {
             System.err.println("could not find parameters_location in " + args[0]);
             System.exit(1);
@@ -81,28 +89,35 @@ public class CarMain {
             System.err.println("could not find server_socket_port in " + args[0]);
             System.exit(1);
         }
-        int servicePort = Integer.parseInt(svcPort);
-
-        System.out.println("chosenSensorsFile: " + chosenSensorsFile);
+        servicePort = Integer.parseInt(svcPort);
 
         // load sensors
-        ArrayList<Sensor> sensors;
         if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
             // get the sensors file from the user's filesystem
             sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
         else
             // get the sensors file saved in this JAR
             sensors = ConfigLoader.getSensorsFromFile(CarMain.class.getResourceAsStream("/" + chosenSensorsFile));
+    }
+
+    // args: parameter config file, sensor config file
+    public static void main(String[] args) {
+        loadConfigs(args);
 
         // sanity check
         System.out.println("Multicast Group: " + multicastGroupName + ":" + multicastPort);
-        System.out.println("Config Filepath: " + chosenConfigFile);
-        System.out.println("Sensors Filepath: " + chosenSensorsFile);
 
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;
         ServiceDiscoveryResponder SDR = null;
         BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
+
+        // create the logger to enqueue data points from sensors
+        logger = new DataLogger(sensors, dataQueue);
+
+        // run logger on a thread to allow additional tasks
+        Thread loggerThread = new Thread(logger);
+        loggerThread.start();
 
         InetAddress multicastGroup = null;
         try {
@@ -119,17 +134,12 @@ public class CarMain {
         // manage multiple-consumption of data
         QueueMultiProducer<DataPoint> dataPointQueueManager = new QueueMultiProducer<>(dataQueue);
         dataPointQueueManager.addConsumer(new UDPTransmitter(multicastGroup, multicastPort));
+
+        // start data-managing thread
         Thread dataPointQueueManagerThread = new Thread(dataPointQueueManager);
         dataPointQueueManagerThread.start();
 
-        // create the logger to enqueue data points from sensors
-        logger = new DataLogger(sensors, dataQueue);
-
-        // run logger on a thread to allow additional tasks
-        Thread loggerThread = new Thread(logger);
-        loggerThread.start();
-
-        // open the service responder to support TCP connections
+        // open the service responder to support TCP connections and service discovery
         Thread responderThread = new Thread(SDR);
         responderThread.start();
 
@@ -139,7 +149,7 @@ public class CarMain {
 
         logger.quit();
         dataPointQueueManager.quit();
-        SDR.end();
+        SDR.quit();
         try {
             loggerThread.join();
             dataPointQueueManagerThread.join();

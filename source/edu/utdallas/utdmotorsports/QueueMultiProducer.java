@@ -1,6 +1,7 @@
 package edu.utdallas.utdmotorsports;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +56,5 @@ public class QueueMultiProducer<E> implements Runnable, Stoppable {
 
     // quit immediately
     @Override
-    public void quit() {
-        done = true; runningThread.interrupt();
-    }
+    public void quit() { done = true; runningThread.interrupt(); }
 }

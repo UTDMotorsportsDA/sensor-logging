@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * specifically intended to multicast data points from the queue to UDP group
+ * instances are meant to be added to a QueueMultiProducer
  */
 public final class UDPTransmitter implements QueueMultiConsumer<DataPoint> {
     // data transmission parameters
@@ -36,31 +37,4 @@ public final class UDPTransmitter implements QueueMultiConsumer<DataPoint> {
             e.printStackTrace();
         }
     }
-
-//    @Override
-//    public void run() {
-//        // open a UDP socket
-//        try(DatagramSocket multicastSocket = new DatagramSocket()) {
-//            // work with one point at a time
-//            DataPoint currentPoint = null;
-//
-//            // main wait-transmit loop
-//            // once end() is called, flush the data queue and finish
-//            while(!(done && dataQueue.isEmpty())) {
-//                // get one data point from the queue
-//                try {
-//                    currentPoint = dataQueue.poll(1, TimeUnit.SECONDS); // wait 1 second at most
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace(); // no known reason for interruption
-//                }
-//                // go again if there's no data to work on
-//                if(currentPoint == null) continue;
-//
-//
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            System.exit(1);
-//        }
-//    }
 }

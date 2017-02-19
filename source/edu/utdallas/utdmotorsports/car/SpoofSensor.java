@@ -4,7 +4,9 @@ import edu.utdallas.utdmotorsports.DataPoint;
 
 import java.time.Duration;
 import java.time.Instant;
-
+/**
+ * testing utility
+ */
 public class SpoofSensor extends Sensor { // fake sensor data for testing
 
     private float currentValue = 40.f;
