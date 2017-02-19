@@ -1,0 +1,17 @@
+Write a Java class that will read 2 data point queues and store the last X seconds of data for every sensor (consider sensor names unique for identification purposes).
+
+The queues will have duplicates, meaning one data point will be found in both queues but not necessarily at the same time. Make sure you eliminate these duplicates.
+
+Requirements:
+	Implement Java's Runnable interface.
+
+Suggestions:
+	* consider storing each individual sensor's recent history as some sort of queue
+	* consider storing each collection of recent history as a HashMap entry, using the name of the sensor as the key
+
+Input:
+	The constructor of your class should accept the 2 input queues and an int specifying how many seconds of data the queue should hold.
+
+Output:
+	* Your class should contain a method to return a COPY (!) of the sensor's history queue given a string containing that sensor's name. This copy of the sensor's history should have chronologically ordered data points.
+	* Additionally, include a method that will return only the most recent data point for a given sensor.
