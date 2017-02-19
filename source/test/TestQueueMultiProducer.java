@@ -42,7 +42,7 @@ public class TestQueueMultiProducer {
         for(int i = 0; i < 10; ++i) {
             Thread.sleep(3000);
 
-            testQueue.add(new DataPoint("sensor", "value " + i, Instant.now().toEpochMilli()));
+            testQueue.add(new DataPoint("sensor", "value " + i, Instant.now().toEpochMilli(), true));
         }
         System.out.println("done");
         Thread.sleep(3000);

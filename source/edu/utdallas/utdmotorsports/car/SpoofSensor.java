@@ -1,5 +1,7 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.DataPoint;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -28,7 +30,8 @@ public class SpoofSensor extends Sensor { // fake sensor data for testing
     }
 
     @Override
-    public synchronized String peekCurrent() {
-        return String.valueOf(currentValue);
+    public synchronized DataPoint peekCurrent() {
+        currentDataPoint = new DataPoint(getLabel(), Float.toString(currentValue), Instant.now().toEpochMilli(), false);
+        return currentDataPoint;
     }
 }

@@ -1,6 +1,10 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.DataPoint;
+
+import javax.xml.crypto.Data;
 import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Created by brian on 11/9/16.
@@ -17,7 +21,6 @@ public class LSM303AccelerationSensor extends Sensor {
     private final int BYTES_PER_MEASUREMENT = 6; // from device datasheet
 
     // x, y, and z values in SI units of meters per second per second
-    private float[] currentValue = new float[3];
     private float conversionScaleFactor = 0.0f; // device register values need conversion to SI
 
     public LSM303AccelerationSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
@@ -39,18 +42,27 @@ public class LSM303AccelerationSensor extends Sensor {
         super.refresh();
 
         // pull a set of XYZ values from the accelerometer
+        // record the time at which the reading was taken
         byte[] reading = readValue();
+        long timestamp = Instant.now().toEpochMilli();
 
-        // convert from LSM303 register values to SI units
+        // convert from LSM303 register values a string of SI-unit values
+        String value = "";
         for(int i = 0; i < 3; ++i)
-            currentValue[i] = conversionScaleFactor * (short)((short)(((reading[2*i+1] & 0xff) << 8) | reading[2*i] & 0xff) >> 4);
+             value += conversionScaleFactor * (short)((short)(((reading[2*i+1] & 0xff) << 8) | reading[2*i] & 0xff) >> 4) + ",";
+
+        // cut off the trailing comma
+        value = value.substring(0, value.length() - 1);
+
+        // store as DataPoint
+        currentDataPoint = new DataPoint(getLabel(), value, timestamp, false);
 
         return false;
     }
 
     @Override
-    public String peekCurrent() {
-        return currentValue[0] + "," + currentValue[1] + "," + currentValue[2];
+    public DataPoint peekCurrent() {
+        return currentDataPoint;
     }
 
     private void configureOptions(float maxAcceleration, Duration valueRefreshInterval) {

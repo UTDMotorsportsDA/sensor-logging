@@ -17,7 +17,7 @@ class DataLogger implements Runnable, Stoppable {
     private PriorityQueue<Sensor> sensorQueue;
     private Queue<DataPoint> outputQueue;
     private boolean done = false;
-    private Thread clientThread = null;
+    private Thread runningThread = null;
 
     DataLogger(ArrayList<Sensor> sensors, Queue<DataPoint> outputQueue) {
         this.outputQueue = outputQueue;
@@ -47,7 +47,7 @@ class DataLogger implements Runnable, Stoppable {
 
         // kick the logger out of its current wait period to poll for next sensor
         // if a sensor has gone critical, it needs to be handled ASAP
-        clientThread.interrupt();
+        runningThread.interrupt();
     }
 
     // part of run()'s queue'd cycle put into a method for thread synchronization
@@ -60,7 +60,7 @@ class DataLogger implements Runnable, Stoppable {
     @Override
     public void run() {
         // grab a handle to this thread
-        clientThread = Thread.currentThread();
+        runningThread = Thread.currentThread();
 
         // create specific updaters, make the first updater a catch-all
         SensorUpdater[] updaters = { new SensorUpdater(this),
@@ -93,8 +93,8 @@ class DataLogger implements Runnable, Stoppable {
                 // prevent negative sleep
                 TimeUnit.NANOSECONDS.sleep(Math.max(0, Duration.between(Instant.now(), currentSensor.nextRefresh(RefreshType.LOGGING_UPDATE)).toNanos()));
 
-                // enqueue a new data point
-                outputQueue.add(new DataPoint(currentSensor.getLabel(), currentSensor.getCurrent(), Instant.now().toEpochMilli()));
+                // enqueue the most current data point for the sensor
+                outputQueue.add(currentSensor.getCurrent());
 
                 // re-enqueue sensor for next update
                 requeueSensor(currentSensor);
@@ -116,5 +116,5 @@ class DataLogger implements Runnable, Stoppable {
 
     // finish up and self-terminate
     @Override
-    public void quit() { done = true; clientThread.interrupt(); }
+    public void quit() { done = true; runningThread.interrupt(); }
 }

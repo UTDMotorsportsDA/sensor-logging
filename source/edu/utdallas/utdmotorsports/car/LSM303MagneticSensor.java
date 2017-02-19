@@ -1,6 +1,10 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.DataPoint;
+
+import javax.xml.crypto.Data;
 import java.time.Duration;
+import java.time.Instant;
 
 // outputs magnetic vector in Tesla
 public class LSM303MagneticSensor extends Sensor {
@@ -11,7 +15,6 @@ public class LSM303MagneticSensor extends Sensor {
     private int bytesPerMeasurement = 6;
 
     // x, y, and z values in SI units of Tesla
-    private float[] currentValue = new float[3];
     private float conversionScaleFactorXY, conversionScaleFactorZ;
 
     public LSM303MagneticSensor(String label, Duration[] timesBetweenUpdates, float maximumReading, int busNumber) {
@@ -33,19 +36,25 @@ public class LSM303MagneticSensor extends Sensor {
         super.refresh();
 
         // pull a set of XYZ values from the magnetometer
+        // record the time at which the reading was taken
         byte[] reading = readValue();
+        long timestamp = Instant.now().toEpochMilli();
 
-        // convert from LSM303 register values to SI units
-        currentValue[0] = conversionScaleFactorXY * (short)(((reading[0] & 0xff) << 8) | reading[1] & 0xff);
-        currentValue[1] = conversionScaleFactorXY * (short)(((reading[2] & 0xff) << 8) | reading[3] & 0xff);
-        currentValue[2] = conversionScaleFactorZ * (short)(((reading[4] & 0xff) << 8) | reading[5] & 0xff);
+        // convert from LSM303 register values to a string of SI-unit values
+        String value;
+        value = Float.toString(conversionScaleFactorXY * (short)(((reading[0] & 0xff) << 8) | reading[1] & 0xff)) + ",";
+        value += conversionScaleFactorXY * (short)(((reading[2] & 0xff) << 8) | reading[3] & 0xff) + ",";
+        value += conversionScaleFactorZ * (short)(((reading[4] & 0xff) << 8) | reading[5] & 0xff);
+
+        // store as DataPoint
+        currentDataPoint = new DataPoint(getLabel(), value, timestamp, false);
 
         return false;
     }
 
     @Override
-    public String peekCurrent() {
-        return currentValue[0] + "," + currentValue[1] + "," + currentValue[2];
+    public DataPoint peekCurrent() {
+        return currentDataPoint;
     }
 
     private void configureOptions(float maxField, Duration valueRefreshInterval) {

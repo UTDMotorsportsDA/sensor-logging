@@ -9,14 +9,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class CarMain {
     private static String DEFAULT_CONFIG_FILE = "config/general.prop";
     private static String DEFAULT_SENSORS_FILE = "config/sensor.prop";
-    private static String TEST_SENSORS_FILE = "config/fake_sensor.prop";
 
     // args: parameter config file, sensor config file
     public static void main(String[] args) {
@@ -29,10 +31,7 @@ public class CarMain {
         }
         else {
             chosenConfigFile = DEFAULT_CONFIG_FILE;
-            if(Arrays.asList(args).contains("-t"))
-                chosenSensorsFile = TEST_SENSORS_FILE;
-            else
-                chosenSensorsFile = DEFAULT_SENSORS_FILE;
+            chosenSensorsFile = DEFAULT_SENSORS_FILE;
         }
         // filenames starting with "/" and "./" are later interpreted as being outside JAR
         if(chosenConfigFile.charAt(0) == '/' || chosenConfigFile.substring(0, 2).equals("./"))
@@ -83,6 +82,8 @@ public class CarMain {
             System.exit(1);
         }
         int servicePort = Integer.parseInt(svcPort);
+
+        System.out.println("chosenSensorsFile: " + chosenSensorsFile);
 
         // load sensors
         ArrayList<Sensor> sensors;

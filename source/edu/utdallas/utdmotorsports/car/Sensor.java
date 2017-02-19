@@ -1,5 +1,7 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.DataPoint;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -10,8 +12,10 @@ public abstract class Sensor {
         LOGGING_UPDATE
     }
 
-    String name = null;
-    boolean critical = false;
+    // identification
+    private String name = null;
+
+    protected DataPoint currentDataPoint;
 
     // 3 elements: value update, pit, pit critical
     Duration[] refreshPeriods = null;
@@ -20,7 +24,7 @@ public abstract class Sensor {
 
     // smooth out deviations from real-time-ness in updates (errors caused by program overhead, non-RTOS, etc)
     // 2 elements: value update, pit update
-    private Duration[] refreshErrors = {Duration.ZERO, Duration.ZERO};
+    private Duration[] refreshErrors = { Duration.ZERO, Duration.ZERO };
 
     // children shall overload this constructor, adding 'criticalThreshold' parameter(s)
     // and call super(...) to handle first 2 parameters
@@ -50,10 +54,14 @@ public abstract class Sensor {
     }
 
     public String getLabel() { return name; }
-    public boolean isCritical() { return critical; }
+    public boolean isCritical() {
+        if(currentDataPoint == null)
+            return false;
+        return currentDataPoint.getCritical();
+    }
 
     public Instant nextRefresh(RefreshType rType) {
-        int typeOffset = 0;
+        int typeOffset;
         switch (rType) {
             case VALUE_UPDATE:
                 typeOffset = 0;
@@ -92,10 +100,10 @@ public abstract class Sensor {
         return false;
     }
 
-    public abstract String peekCurrent(); // look at current value without causing refresh
+    public abstract DataPoint peekCurrent(); // look at current value without causing refresh
 
     // return current value and log update time (considered a pit update)
-    public String getCurrent() {
+    public DataPoint getCurrent() {
         // calculate difference between desired refresh period and realized refreshed period
         // if realized period is too long, difference is positive
         // add to accumulator to offset next reported refresh
