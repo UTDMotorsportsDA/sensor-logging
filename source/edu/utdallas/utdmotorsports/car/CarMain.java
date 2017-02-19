@@ -1,6 +1,7 @@
 package edu.utdallas.utdmotorsports.car;
 
 import edu.utdallas.utdmotorsports.DataPoint;
+import edu.utdallas.utdmotorsports.QueueMultiProducer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,7 +85,7 @@ public class CarMain {
         int servicePort = Integer.parseInt(svcPort);
 
         // load sensors
-        Sensor[] sensors;
+        ArrayList<Sensor> sensors;
         if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
             // get the sensors file from the user's filesystem
             sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
@@ -99,16 +100,13 @@ public class CarMain {
 
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;
-        UDPTransmitter UDPtx = null;
         ServiceDiscoveryResponder SDR = null;
         BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
 
+        InetAddress multicastGroup = null;
         try {
             // get a proper InetAddress
-            InetAddress multicastGroup = InetAddress.getByName(multicastGroupName);
-
-            // transmitter will send data points from the queue
-            UDPtx = new UDPTransmitter(multicastGroup, multicastPort, dataQueue);
+            multicastGroup = InetAddress.getByName(multicastGroupName);
 
             // responder sits on the network and notifies other devices of where to open a TCP socket
             SDR = new ServiceDiscoveryResponder(multicastGroup, multicastPort, serviceName, servicePort, parametersPath);
@@ -117,6 +115,12 @@ public class CarMain {
             System.exit(1);
         }
 
+        // manage multiple-consumption of data
+        QueueMultiProducer<DataPoint> dataPointQueueManager = new QueueMultiProducer<>(dataQueue);
+        dataPointQueueManager.addConsumer(new UDPTransmitter(multicastGroup, multicastPort));
+        Thread dataPointQueueManagerThread = new Thread(dataPointQueueManager);
+        dataPointQueueManagerThread.start();
+
         // create the logger to enqueue data points from sensors
         logger = new DataLogger(sensors, dataQueue);
 
@@ -124,29 +128,20 @@ public class CarMain {
         Thread loggerThread = new Thread(logger);
         loggerThread.start();
 
-        // give TX a thread to preserve data integrity
-        Thread txThread = new Thread(UDPtx);
-        txThread.start();
-
         // open the service responder to support TCP connections
         Thread responderThread = new Thread(SDR);
         responderThread.start();
 
-        // wait for user to quit
+        // quit when user is done
         Scanner stdin = new Scanner(System.in);
-        while(true) {
-            if(stdin.hasNext()) // enter q to quit
-                if(Character.toUpperCase(stdin.next().charAt(0)) == 'Q')
-                    break;
-        }
+        while(!stdin.next().toUpperCase().equals("Q"));
 
-        // quit
-        logger.end();
-        UDPtx.end();
+        logger.quit();
+        dataPointQueueManager.quit();
         SDR.end();
         try {
             loggerThread.join();
-            txThread.join();
+            dataPointQueueManagerThread.join();
             responderThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -157,7 +152,7 @@ public class CarMain {
 final class ConfigLoader {
 
     // load sensors given a text file name
-    public static Sensor[] getSensorsFromFile(String filename) {
+    public static ArrayList<Sensor> getSensorsFromFile(String filename) {
         try {
             return getSensorsFromFile(new FileInputStream(new File(filename)));
         } catch (IOException e) {
@@ -169,7 +164,7 @@ final class ConfigLoader {
     }
 
     // load sensors from an input stream
-    public static Sensor[] getSensorsFromFile(InputStream fileStream) {
+    public static ArrayList<Sensor> getSensorsFromFile(InputStream fileStream) {
         ArrayList<Sensor> sensors = new ArrayList<>();
         Properties props = new Properties();
 
@@ -259,7 +254,6 @@ final class ConfigLoader {
             }
         }
 
-        // return a fixed array; system should be unpowered when changing physical configuration anyway
-        return sensors.toArray(new Sensor[0]);
+        return sensors;
     }
 }

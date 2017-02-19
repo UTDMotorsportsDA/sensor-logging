@@ -4,20 +4,23 @@ import java.time.Duration;
 import java.time.Instant;
 
 public abstract class Sensor {
-    protected String name = null;
-    protected boolean critical = false;
+    // distinguish between updating value and using latest value
+    enum RefreshType {
+        VALUE_UPDATE,
+        LOGGING_UPDATE
+    }
+
+    String name = null;
+    boolean critical = false;
 
     // 3 elements: value update, pit, pit critical
-    protected Duration[] refreshPeriods = null;
+    Duration[] refreshPeriods = null;
     // 2 elements: value update, pit
-    protected Instant[] lastRefreshes = new Instant[2];
+    Instant[] lastRefreshes = new Instant[2];
 
     // smooth out deviations from real-time-ness in updates (errors caused by program overhead, non-RTOS, etc)
     // 2 elements: value update, pit update
     private Duration[] refreshErrors = {Duration.ZERO, Duration.ZERO};
-
-    // store ComparableSensors instead of wasting time re-computing
-    ComparableSensor[] comparables = { new ComparableSensor(this, RefreshType.VALUE_UPDATE), new ComparableSensor(this, RefreshType.LOGGING_UPDATE) };
 
     // children shall overload this constructor, adding 'criticalThreshold' parameter(s)
     // and call super(...) to handle first 2 parameters
@@ -48,18 +51,6 @@ public abstract class Sensor {
 
     public String getLabel() { return name; }
     public boolean isCritical() { return critical; }
-
-    // return stored ComparableSensors
-    public ComparableSensor asComparable(RefreshType rType) {
-        switch (rType) {
-            case VALUE_UPDATE:
-                return comparables[0];
-            case LOGGING_UPDATE:
-                return comparables[1];
-            default:
-                return null; // shouldn't ever occur
-        }
-    }
 
     public Instant nextRefresh(RefreshType rType) {
         int typeOffset = 0;

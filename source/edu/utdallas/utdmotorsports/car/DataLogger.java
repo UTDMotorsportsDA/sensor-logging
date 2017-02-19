@@ -1,37 +1,49 @@
 package edu.utdallas.utdmotorsports.car;
 
 import edu.utdallas.utdmotorsports.DataPoint;
+import edu.utdallas.utdmotorsports.Stoppable;
+import edu.utdallas.utdmotorsports.car.Sensor.RefreshType;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
-public class DataLogger implements Runnable {
+class DataLogger implements Runnable, Stoppable {
 
-    private Queue<ComparableSensor> sensorQueue = new PriorityQueue<>();
+    private PriorityQueue<Sensor> sensorQueue;
     private Queue<DataPoint> outputQueue;
-    boolean done = false;
+    private boolean done = false;
     private Thread clientThread = null;
 
-    public DataLogger(Sensor[] sensors, Queue<DataPoint> outputQueue) {
+    DataLogger(ArrayList<Sensor> sensors, Queue<DataPoint> outputQueue) {
         this.outputQueue = outputQueue;
 
-        // wrap sensors in objects that implement
-        // Comparable for the priority queue
+        // create with comparator that strictly checks logging updates
+        sensorQueue = new PriorityQueue<>(new Comparator<Sensor>() {
+            @Override
+            public int compare(Sensor sensor, Sensor t1) {
+                return sensor.nextRefresh(RefreshType.LOGGING_UPDATE).compareTo(t1.nextRefresh(RefreshType.LOGGING_UPDATE));
+            }
+        });
+
+        // enqueue every sensor
         for(Sensor s : sensors) {
-            sensorQueue.add(s.asComparable(RefreshType.LOGGING_UPDATE));
+            sensorQueue.add(s);
         }
     }
 
     // intended to inform this instance of a new update interval immediately
-    // removes sensor if possible and adds; different from requeueComparableSensor
-    public synchronized void renewSensor(Sensor s) {
+    // removes sensor if possible and adds; different from requeueSensor
+    synchronized void renewSensor(Sensor s) {
         // if sensor is in queue, remove
-        sensorQueue.remove(s.asComparable(RefreshType.LOGGING_UPDATE));
+        sensorQueue.remove(s);
 
         // add sensor to queue (if sensor was in queue, moves it to the new update period)
-        sensorQueue.add(s.asComparable(RefreshType.LOGGING_UPDATE));
+        sensorQueue.add(s);
 
         // kick the logger out of its current wait period to poll for next sensor
         // if a sensor has gone critical, it needs to be handled ASAP
@@ -39,10 +51,10 @@ public class DataLogger implements Runnable {
     }
 
     // part of run()'s queue'd cycle put into a method for thread synchronization
-    private synchronized void requeueComparableSensor(ComparableSensor cs) {
+    private synchronized void requeueSensor(Sensor s) {
         // only re-add sensor if it wasn't added by a call to renewSensor
-        if(!sensorQueue.contains(cs))
-            sensorQueue.add(cs);
+        if(!sensorQueue.contains(s))
+            sensorQueue.add(s);
     }
 
     @Override
@@ -54,14 +66,14 @@ public class DataLogger implements Runnable {
         SensorUpdater[] updaters = { new SensorUpdater(this),
                 new SpoofSensorUpdater(this) };
 
-        // add every sensor from inside wrapper to the updaters
+        // add every sensor to the list of updaters
         // if sensor can't be placed in any specific updater, place it in the default
         // if sensor can't even go in the default updater, log as an error and move on
-        for(ComparableSensor cs : sensorQueue.toArray(new ComparableSensor[sensorQueue.size()])) {
+        for(Sensor s : sensorQueue.toArray(new Sensor[sensorQueue.size()])) {
             int updaterIndex = updaters.length;
-            while(updaterIndex > 0 && !updaters[--updaterIndex].addSensor(cs.sensor()));
+            while(updaterIndex > 0 && !updaters[--updaterIndex].addSensor(s));
             if(updaterIndex < 0)
-                System.err.println("unable to add sensor \"" + cs.sensor().getLabel() + "\" to any updater");
+                System.err.println("unable to add sensor \"" + s.getLabel() + "\" to any updater");
         }
 
         // kick off the updaters on separate threads
@@ -71,35 +83,30 @@ public class DataLogger implements Runnable {
             updaterThreads[i].start();
         }
 
-        while(!done) {
-            // retrieve a sensor from which to read out of the queue
-            ComparableSensor currentComparableSensor = sensorQueue.poll();
-            Sensor currentSensor = currentComparableSensor.sensor();
+        try {
+            while(!done) {
+                // retrieve the next sensor from which to read
+                Sensor currentSensor = sensorQueue.poll();
 
-            // wait until moment of update
-            Duration delta = Duration.between(Instant.now(), currentComparableSensor.nextRefresh());
-            if(delta.compareTo(Duration.ZERO) > 0) {
-                long millisToWait = delta.toMillis();
-                int nanosToWait = Math.max(0, (int)delta.minusMillis(millisToWait).toNanos());
+                // wait until moment of update
+                // basically just "sleep for the right number of nanoseconds"
+                // prevent negative sleep
+                TimeUnit.NANOSECONDS.sleep(Math.max(0, Duration.between(Instant.now(), currentSensor.nextRefresh(RefreshType.LOGGING_UPDATE)).toNanos()));
 
-                try {
-                    Thread.sleep(millisToWait, nanosToWait);
-                } catch (InterruptedException e) {
-                    // skip the rest of waiting for the next sensor reading, some critical state has changed
-                }
+                // enqueue a new data point
+                outputQueue.add(new DataPoint(currentSensor.getLabel(), currentSensor.getCurrent(), Instant.now().toEpochMilli()));
+
+                // re-enqueue sensor for next update
+                requeueSensor(currentSensor);
             }
-
-            // enqueue a new data point
-            outputQueue.add(new DataPoint(currentSensor.getLabel(), currentSensor.getCurrent(), Instant.now().toEpochMilli()));
-
-            // re-enqueue sensor for next update
-            requeueComparableSensor(currentComparableSensor);
+        } catch (InterruptedException e) {
+            if(!done)
+                e.printStackTrace();
         }
 
         try {
-            // temporary: kill the updaters and wait for them to end
             for(SensorUpdater u : updaters)
-                u.end();
+                u.quit();
             for(Thread t : updaterThreads)
                 t.join();
         } catch (InterruptedException e) {
@@ -107,6 +114,7 @@ public class DataLogger implements Runnable {
         }
     }
 
-    // allow client to finish
-    public void end() { done = true; }
+    // finish up and self-terminate
+    @Override
+    public void quit() { done = true; clientThread.interrupt(); }
 }

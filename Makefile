@@ -12,7 +12,7 @@ all: common pit car native
 	jar -xf lib/json-simple-1.1.1.jar org && cp -r org $(CLASS_DIR) && rm -r org/
 	jar cfm $(JAR_DEST)/car.jar $(MANIFEST_DIR)/Manifest-car.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/
 	jar cfm $(JAR_DEST)/car_sim.jar $(MANIFEST_DIR)/Manifest-car_sim.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/simulation
-	jar cfe $(JAR_DEST)/pit.jar edu.utdallas.utdmotorsports.PitMain -C $(CLASS_DIR) edu/ config/general.prop
+	jar cfm $(JAR_DEST)/pit.jar $(MANIFEST_DIR)/Manifest-pit.txt -C $(CLASS_DIR) edu/ config/general.prop
 	zip -qd $(JAR_DEST)/car.jar edu/utdallas/utdmotorsports/pit/* config/simulation/* config/simulation
 	zip -qd $(JAR_DEST)/car_sim.jar edu/utdallas/utdmotorsports/pit/*
 	zip -qd $(JAR_DEST)/pit.jar edu/utdallas/utdmotorsports/car/*
