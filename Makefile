@@ -1,7 +1,6 @@
 ARM_CROSS_COMPILER=arm-linux-gnueabihf-gcc
 NATIVE_SOURCE_DIR=source/JNI
 NATIVE_OBJ_DIR=lib/JNI
-BEAGLEGBONE_IP=192.168.3.142
 CLASS_DIR=class
 MANIFEST_DIR=manifest
 JAR_DEST=jar
@@ -16,6 +15,8 @@ all: common pit car native
 	zip -qd $(JAR_DEST)/car.jar edu/utdallas/utdmotorsports/pit/* config/simulation/* config/simulation
 	zip -qd $(JAR_DEST)/car_sim.jar edu/utdallas/utdmotorsports/pit/*
 	zip -qd $(JAR_DEST)/pit.jar edu/utdallas/utdmotorsports/car/*
+
+	@echo "\nsuccessfully compiled the project into the $(JAR_DEST)/ folder"
 
 common:
 	javac source/edu/utdallas/utdmotorsports/*.java -d $(CLASS_DIR)
