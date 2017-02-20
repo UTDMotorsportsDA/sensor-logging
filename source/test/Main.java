@@ -5,6 +5,8 @@ package test;
  */
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        TestQueueMultiProducer.main(args);
+//        TestQueueMultiProducer.main(args);
+        TestTCPDataService.main(new String[0]);
     }
+
 }

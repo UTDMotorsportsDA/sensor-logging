@@ -139,7 +139,15 @@ public class CarMain {
         Thread dataPointQueueManagerThread = new Thread(dataPointQueueManager);
         dataPointQueueManagerThread.start();
 
-        // open the service responder to support TCP connections and service discovery
+        // open the TCP service on a thread to accept and feed connections
+        TCPDataService dataService = new TCPDataService(servicePort, 1);
+        Thread dataServiceThread = new Thread(dataService);
+        dataServiceThread.start();
+
+        // data service needs to consume data points
+        dataPointQueueManager.addConsumer(dataService);
+
+        // open the service responder to support service discovery
         Thread responderThread = new Thread(SDR);
         responderThread.start();
 

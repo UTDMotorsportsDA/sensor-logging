@@ -160,7 +160,6 @@ public class ServiceDiscoveryResponder implements Runnable, Stoppable {
         }
     }
 
-    // stop the thread
-
+    // stop the thread for it to self-terminate
     public void quit() { done = true; }
 }
