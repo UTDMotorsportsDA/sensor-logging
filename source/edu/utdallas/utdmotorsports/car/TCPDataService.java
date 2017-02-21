@@ -17,8 +17,8 @@ import java.util.Set;
  * consume data points and send them to each client
  */
 public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<DataPoint> {
-    // output streams for every client connected
-    private Set<OutputStream> clientStreams;
+    // all clients currently connected
+    private Set<Socket> clients;
 
     // server parameters
     private int servicePort;
@@ -33,11 +33,11 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
         this.maxConnectionCount = maxConnectionCount;
 
         // instantiate the set of sockets
-        clientStreams = new HashSet<>();
+        clients = new HashSet<>();
     }
 
-    private void removeClientStream(OutputStream s) {
-        clientStreams.remove(s);
+    private void removeClient(Socket s) {
+        clients.remove(s);
 
         // wake up to see if it's time to accept connections again
         synchronized(maxConnectionCount) { maxConnectionCount.notify(); }
@@ -57,13 +57,11 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
                     // accept a connection
                     Socket client = ssock.accept();
 
-                    // add the connection's OutputStream to this instance's set
-                    // don't let a single connection kill the server socket
-                    try { clientStreams.add(client.getOutputStream()); System.out.println("new connection added");}
-                    catch (IOException e) { e.printStackTrace(); }
+                    // add the connection to this instance's set
+                    clients.add(client); System.out.println("new connection added");
 
                     // close the socket if maxConnectionCount reached
-                    if(clientStreams.size() >= maxConnectionCount) break;
+                    if(clients.size() >= maxConnectionCount) break;
                 }
             } catch (IOException e) {
                 if(!done)
@@ -72,7 +70,7 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
 
             // adhere to maxConnectionCount
             synchronized (maxConnectionCount) {
-                while (clientStreams.size() >= maxConnectionCount && !done)
+                while (clients.size() >= maxConnectionCount && !done)
                     try {
                         maxConnectionCount.wait();
                     } catch (InterruptedException e) { /* do nothing */ }
@@ -92,8 +90,8 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
             catch (IOException e) { e.printStackTrace(); }
 
         // close all connections
-        for(OutputStream s : clientStreams) {
-            try { s.close(); clientStreams.remove(s); }
+        for(Socket s : clients) {
+            try { s.close(); clients.remove(s); }
             catch (IOException e) { /* do nothing */ }
         }
     }
@@ -101,15 +99,16 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
     // send the data point to every connection
     @Override
     public void processElement(DataPoint dataPoint) {
-        String message = "{\"data\":\"" + dataPoint.toString() + "\"}\n";
-        System.out.print(message);
-        for(OutputStream s : clientStreams) {
-            try { s.write(message.getBytes(StandardCharsets.US_ASCII)); }
+        String message = "{\"data\":\"" + dataPoint.toString() + "\"}";
+        for(Socket s : clients) {
+            System.out.println(s.getRemoteSocketAddress() + " " + message);
+            try { s.getOutputStream().write(message.getBytes(StandardCharsets.US_ASCII)); }
             catch (IOException e) {
+//                e.printStackTrace();
                 try{ s.close(); }  // consider socket dead/broken if exception occurs, close if needed
                 catch (IOException e1) { e.printStackTrace(); }
+                finally { removeClient(s); } // no sense keeping a dead socket
             }
-            finally { removeClientStream(s); } // no sense keeping a dead socket
         }
     }
 }
