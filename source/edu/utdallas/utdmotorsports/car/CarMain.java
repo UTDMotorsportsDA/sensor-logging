@@ -140,7 +140,7 @@ public class CarMain {
         dataPointQueueManagerThread.start();
 
         // open the TCP service on a thread to accept and feed connections
-        TCPDataService dataService = new TCPDataService(servicePort, 1);
+        TCPDataService dataService = new TCPDataService(servicePort, 2);
         Thread dataServiceThread = new Thread(dataService);
         dataServiceThread.start();
 
@@ -155,13 +155,17 @@ public class CarMain {
         Scanner stdin = new Scanner(System.in);
         while(!stdin.next().toUpperCase().equals("Q"));
 
+        // quit all threaded objects
         logger.quit();
         dataPointQueueManager.quit();
         SDR.quit();
+        dataService.quit();
         try {
+            // join with threads
             loggerThread.join();
             dataPointQueueManagerThread.join();
             responderThread.join();
+            dataServiceThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

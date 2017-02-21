@@ -58,14 +58,17 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
                     Socket client = ssock.accept();
 
                     // add the connection to this instance's set
-                    clients.add(client); System.out.println("new connection added");
+                    clients.add(client);
 
                     // close the socket if maxConnectionCount reached
                     if(clients.size() >= maxConnectionCount) break;
                 }
             } catch (IOException e) {
-                if(!done)
+                System.out.println("IOException caught");
+                if(!done) {
                     e.printStackTrace();
+                    System.err.println("creating new ServerSocket on port " + servicePort);
+                }
             }
 
             // adhere to maxConnectionCount
@@ -79,7 +82,7 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
     }
 
     // immediately self-terminate (kind of like a destructor)
-    ServerSocket quitSock = null;
+    private ServerSocket quitSock;
     @Override
     public void quit() {
         // break out of any possible blocking call
@@ -99,16 +102,20 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
     // send the data point to every connection
     @Override
     public void processElement(DataPoint dataPoint) {
+        if(clients.size() <= 0)
+            return; // nothing to do
+
+        // convert to JSON string
         String message = "{\"data\":\"" + dataPoint.toString() + "\"}";
-        for(Socket s : clients) {
-            System.out.println(s.getRemoteSocketAddress() + " " + message);
+
+        // send string to all clients
+        for(Socket s : clients)
             try { s.getOutputStream().write(message.getBytes(StandardCharsets.US_ASCII)); }
             catch (IOException e) {
-//                e.printStackTrace();
-                try{ s.close(); }  // consider socket dead/broken if exception occurs, close if needed
+
+                try{ s.close(); }  // consider socket dead/broken if exception occurs, close and remove
                 catch (IOException e1) { e.printStackTrace(); }
                 finally { removeClient(s); } // no sense keeping a dead socket
             }
-        }
     }
 }
