@@ -1,1 +1,17 @@
-1 = Spoof, 1000, 1000, 1000
+engine_RPM = SimInt, 10, 10, 10, 1000
+coolant_temperature = SimFloat, 100, 100, 100, 80.0
+intake_air_temperature = SimFloat, 50, 50, 50, 95.0
+lambda = SimFloat, 10, 10, 10, 0.5
+fuel_level = SimFloat, 10, 10, 10, 1.0
+
+brake_pressure_front = SimInt, 10, 10, 10, 10
+brake_pressure_rear = SimInt, 10, 10, 10, 10
+
+speed_front_left = SimFloat, 10, 10, 10, 0.0
+speed_front_right = SimFloat, 10, 10, 10, 0.0
+speed_back_left = SimFloat, 10, 10, 10, 0.0
+speed_back_right = SimFloat, 10, 10, 10, 0.0
+
+IMU_accelerometer = SimVecFloat, 10, 10, 10, 0, 0, -9.81
+IMU_gyroscope = SimVecFloat, 10, 10, 10, 0, 0, 0
+IMU_magnetometer = SimVecFloat, 10, 10, 10, 0.1, 0.1, 0.1

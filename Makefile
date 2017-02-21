@@ -26,6 +26,8 @@ pit:
 	javac $(SOURCE_ROOT)/pit/*.java -d $(CLASS_DIR)
 
 car:
+	javac $(SOURCE_ROOT)/car/Sensor.java -d $(CLASS_DIR)
+	javac $(SOURCE_ROOT)/car/sensors/*.java -d $(CLASS_DIR)
 	javac $(SOURCE_ROOT)/car/*.java -d $(CLASS_DIR)
 
 native:

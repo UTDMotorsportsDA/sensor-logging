@@ -1,10 +1,12 @@
 # general parameter configurations for data retrieval and transmit software
-# broadcast_IP = 192.168.3.255
-# broadcast_port = 3000
+
+# UDP multicast
 multicast_group = 225.0.0.1
 multicast_port = 6000
 
-service_name = Halley's Comet Data Acquisitor
+# TCP data transmitting service
+service_name = Halley's Comet Data Transmitter
 server_socket_port = 9897
+max_connection_count = 1
 parameters_location = test_params.txt
 

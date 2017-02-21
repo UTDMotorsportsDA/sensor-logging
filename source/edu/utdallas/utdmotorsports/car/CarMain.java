@@ -2,6 +2,7 @@ package edu.utdallas.utdmotorsports.car;
 
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.QueueMultiProducer;
+import edu.utdallas.utdmotorsports.car.sensors.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +27,7 @@ public class CarMain {
     private static String serviceName;
     private static String parametersPath;
     private static int servicePort;
+    private static int serviceMaxConnectionCount;
     private static ArrayList<Sensor> sensors;
 
     private static void loadConfigs(String[] args) {
@@ -64,32 +66,38 @@ public class CarMain {
         // pull network parameters from general config file
         multicastGroupName = props.getProperty("multicast_group");
         if(multicastGroupName == null) {
-            System.err.println("could not find multicast_group in " + args[0]);
+            System.err.println("could not find multicast_group in " + chosenConfigFile);
             System.exit(1);
         }
         String mcastPort = props.getProperty("multicast_port");
         if(mcastPort == null) {
-            System.err.println("could not find multicast_port in " + args[0]);
+            System.err.println("could not find multicast_port in " + chosenConfigFile);
             System.exit(1);
         }
         multicastPort = Integer.parseInt(mcastPort);
 
         serviceName = props.getProperty("service_name");
         if(serviceName == null) {
-            System.err.println("could not find service_name in " + args[0]);
+            System.err.println("could not find service_name in " + chosenConfigFile);
             System.exit(1);
         }
         parametersPath = props.getProperty("parameters_location");
         if(parametersPath == null) {
-            System.err.println("could not find parameters_location in " + args[0]);
+            System.err.println("could not find parameters_location in " + chosenConfigFile);
             System.exit(1);
         }
         String svcPort = props.getProperty("server_socket_port");
         if(svcPort == null) {
-            System.err.println("could not find server_socket_port in " + args[0]);
+            System.err.println("could not find server_socket_port in " + chosenConfigFile);
             System.exit(1);
         }
         servicePort = Integer.parseInt(svcPort);
+        String svcMaxConn = props.getProperty("max_connection_count");
+        if(svcMaxConn == null) {
+            System.err.println("could not find max_connection_count in " + chosenConfigFile);
+            System.exit(1);
+        }
+        serviceMaxConnectionCount = Integer.parseInt(svcMaxConn);
 
         // load sensors
         if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
@@ -140,7 +148,7 @@ public class CarMain {
         dataPointQueueManagerThread.start();
 
         // open the TCP service on a thread to accept and feed connections
-        TCPDataService dataService = new TCPDataService(servicePort, 2);
+        TCPDataService dataService = new TCPDataService(servicePort, serviceMaxConnectionCount);
         Thread dataServiceThread = new Thread(dataService);
         dataServiceThread.start();
 
@@ -265,6 +273,49 @@ final class ConfigLoader {
                     }
                     try {
                         sensors.add(new L3GD20HGyroscopeSensor(sensorName, refreshPeriods, Float.parseFloat(parameters[4]), Integer.parseInt(parameters[5])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+                    break;
+
+                case "SimInt":
+                    if(parameters.length != 5) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (SimInt type requires exactly 5)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        sensors.add(new SimulatedSensorInt(sensorName, refreshPeriods, Integer.parseInt(parameters[4])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+                    break;
+
+                case "SimFloat":
+                    if(parameters.length != 5) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (SimFloat type requires exactly 5)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        sensors.add(new SimulatedSensorFloat(sensorName, refreshPeriods, Float.parseFloat(parameters[4])));
+                    } catch(NumberFormatException ex) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
+                        continue iterateProperties;
+                    }
+                    break;
+
+                case "SimVecFloat":
+                    if(parameters.length != 7) {
+                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (SimFloat type requires exactly 7)");
+                        continue iterateProperties;
+                    }
+                    try {
+                        float[] seed = new float[3];
+                        for(int i = 0; i < seed.length; ++i) {
+                            seed[i] = Float.parseFloat(parameters[i + 4]);
+                        }
+                        sensors.add(new SimulatedSensorVecFloat(sensorName, refreshPeriods, seed));
                     } catch(NumberFormatException ex) {
                         System.err.println("config.properties error (" + sensorName + "): incorrect formatting");
                         continue iterateProperties;

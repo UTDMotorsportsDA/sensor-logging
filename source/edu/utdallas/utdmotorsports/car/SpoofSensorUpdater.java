@@ -1,5 +1,7 @@
 package edu.utdallas.utdmotorsports.car;
 
+import edu.utdallas.utdmotorsports.car.sensors.SpoofSensor;
+
 /**
  * example on adding functionality to default SensorUpdater
  * extending base SensorUpdater class is optional, but potentially opens up optimization

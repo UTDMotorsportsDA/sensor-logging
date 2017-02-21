@@ -69,7 +69,7 @@ class DataLogger implements Runnable, Stoppable {
         // add every sensor to the list of updaters
         // if sensor can't be placed in any specific updater, place it in the default
         // if sensor can't even go in the default updater, log as an error and move on
-        for(Sensor s : sensorQueue.toArray(new Sensor[sensorQueue.size()])) {
+        for(Sensor s : sensorQueue) {
             int updaterIndex = updaters.length;
             while(updaterIndex > 0 && !updaters[--updaterIndex].addSensor(s));
             if(updaterIndex < 0)

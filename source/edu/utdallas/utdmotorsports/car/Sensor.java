@@ -18,9 +18,9 @@ public abstract class Sensor {
     protected DataPoint currentDataPoint;
 
     // 3 elements: value update, pit, pit critical
-    Duration[] refreshPeriods = null;
+    protected Duration[] refreshPeriods = null;
     // 2 elements: value update, pit
-    Instant[] lastRefreshes = new Instant[2];
+    protected Instant[] lastRefreshes = new Instant[2];
 
     // smooth out deviations from real-time-ness in updates (errors caused by program overhead, non-RTOS, etc)
     // 2 elements: value update, pit update
@@ -53,6 +53,7 @@ public abstract class Sensor {
         lastRefreshes[1] = Instant.now().minus(refreshPeriods[1]);
     }
 
+    // state values
     public String getLabel() { return name; }
     public boolean isCritical() {
         if(currentDataPoint == null)
@@ -100,7 +101,7 @@ public abstract class Sensor {
         return false;
     }
 
-    public abstract DataPoint peekCurrent(); // look at current value without causing refresh
+    public DataPoint peekCurrent() { return currentDataPoint; } // look at current value without causing refresh
 
     // return current value and log update time (considered a pit update)
     public DataPoint getCurrent() {

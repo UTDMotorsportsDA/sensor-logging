@@ -1,6 +1,7 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.car.sensors;
 
 import edu.utdallas.utdmotorsports.DataPoint;
+import edu.utdallas.utdmotorsports.car.Sensor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -49,11 +50,6 @@ public class LSM303MagneticSensor extends Sensor {
         currentDataPoint = new DataPoint(getLabel(), value, timestamp, false);
 
         return false;
-    }
-
-    @Override
-    public DataPoint peekCurrent() {
-        return currentDataPoint;
     }
 
     private void configureOptions(float maxField, Duration valueRefreshInterval) {

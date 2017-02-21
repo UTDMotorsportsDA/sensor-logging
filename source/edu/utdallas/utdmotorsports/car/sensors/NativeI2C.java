@@ -1,4 +1,4 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.car.sensors;
 
 import java.util.HashMap;
 import java.util.Map;

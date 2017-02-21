@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public class TestTCPDataService {
     public static void main(String args[]) {
         // open a client socket
-        try(Socket sock = new Socket("127.0.0.1", 9897);
+        try(Socket sock = new Socket("192.168.2.104", 9897);
             InputStream is = sock.getInputStream();) {
             byte[] dataBuf = new byte[512];
             while(true) {
