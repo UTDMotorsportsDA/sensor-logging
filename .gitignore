@@ -1,10 +1,12 @@
 /*
+**/*.jar
+**/*.class
 !.gitignore
+!lib/json-simple-1.1.1.jar
 !Makefile
 !build.xml
 !class/
 !config/
-!jar/
 !lib/
 !pit_modules/
 !source/

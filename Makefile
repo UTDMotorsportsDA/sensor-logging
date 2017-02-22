@@ -9,6 +9,7 @@ SOURCE_ROOT=source/edu/utdallas/utdmotorsports
 export CLASSPATH=$(CLASS_DIR):lib/*
 
 all: common pit car native
+	mkdir -p $(JAR_DEST)
 	jar -xf lib/json-simple-1.1.1.jar org && cp -r org $(CLASS_DIR) && rm -r org/
 	jar cfm $(JAR_DEST)/car.jar $(MANIFEST_DIR)/Manifest-car.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/
 	jar cfm $(JAR_DEST)/car_sim.jar $(MANIFEST_DIR)/Manifest-car_sim.txt -C $(CLASS_DIR) edu/ -C $(CLASS_DIR) org/ config/simulation
@@ -31,7 +32,7 @@ car:
 	javac $(SOURCE_ROOT)/car/*.java -d $(CLASS_DIR)
 
 native:
-	javah -jni -d $(NATIVE_SOURCE_DIR) edu.utdallas.utdmotorsports.car.NativeI2C
+	javah -jni -d $(NATIVE_SOURCE_DIR) edu.utdallas.utdmotorsports.car.sensors.NativeI2C
 
 test:
 	javac source/test/*.java -d $(CLASS_DIR)
@@ -47,4 +48,4 @@ stage:
 	git status
 
 clean:
-	rm -r $(JAR_DEST)/*.jar $(CLASS_DIR)/*
+	rm -r $(JAR_DEST) $(CLASS_DIR)/*

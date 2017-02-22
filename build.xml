@@ -3,14 +3,38 @@ This is the Ant build file for the project.
 Most popular Java IDEs like Eclipse and IntelliJ IDEA support compiling using Ant builds,
 -->
 
-<?xml version="1.0" encoding="UTF-8">
 <project name="sensor-logging" default="all">
 
-	<property name="root" location="${ant.file}"/>
-	<property name="src" location="${root}/source"/>
-	<property name="class" location="${root}/class"/>
-	<property name="build" location="${root}/jar"/>
-	<property name="manifest" location="${root}/manifest"/>
+	<property name="src" location="source"/>
+	<property name="class" location="class"/>
+	<property name="build" location="jar"/>
+	<property name="manifest" location="manifest"/>
+	<property name="src.common" location="${src}/utdallas/utdmotorsports"/>
+	<property name="src.car" location="${src.common}/car"/>
+	<property name="src.pit" location="${src.common}/pit"/>
 
+	<target name="init">
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="clean">
+		<!-- remove output files from previous builds -->
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build}"/>
+			<fileset dir="${class}/edu"/>
+		</delete>
+	</target>
+
+	<target name="common">
+	</target>
+
+	<target name="car">
+	</target>
+
+	<target name="pit">
+	</target>
+
+	<target name="test">
+	</target>
 
 </project>
