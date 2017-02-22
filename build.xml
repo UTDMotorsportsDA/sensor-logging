@@ -197,6 +197,11 @@
       <fileset dir="${module.sensor-logging.basedir}">
         <include name="config/*"/>
         <exclude name="config/simulation/"/>
+        <!--
+        libnativei2c.so compiles with the following command on Linux, provided the armhf compiler is installed:
+        arm-linux-gnueabihf-gcc -I /usr/lib/jvm/java-8-openjdk-amd64/include -I /usr/lib/jvm/java-8-openjdk-amd64/include/linux -shared -fPIC -o lib/JNI/libnativei2c.so source/JNI/edu_utdallas_utdmotorsports_car_NativeI2C.c
+        -->
+        <include name="lib/JNI/*"/>
       </fileset>
     </jar>
   </target>
