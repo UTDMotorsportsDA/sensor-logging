@@ -1,40 +1,251 @@
-<!--
-This is the Ant build file for the project.
-Most popular Java IDEs like Eclipse and IntelliJ IDEA support compiling using Ant builds,
--->
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project name="sensor-logging" default="all">
+  
+  
+  <property file="build.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
 
-	<property name="src" location="source"/>
-	<property name="class" location="class"/>
-	<property name="build" location="jar"/>
-	<property name="manifest" location="manifest"/>
-	<property name="src.common" location="${src}/utdallas/utdmotorsports"/>
-	<property name="src.car" location="${src.common}/car"/>
-	<property name="src.pit" location="${src.common}/pit"/>
+  <property name="skip.tests" value="true"/>
 
-	<target name="init">
-		<mkdir dir="${build}"/>
-	</target>
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*.yarb/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+    <exclude name="**/*.c/**"/>
+    <exclude name="**/*.h/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.swc"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.ear"/>
+    <include name="*.egg"/>
+    <include name="*.ane"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+    <exclude name="**/?*.aj"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
+  <path id="jdk.classpath.1.8">
+    <fileset dir="${jdk.home.1.8}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/ext/cldrdata.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/icedtea-sound.jar"/>
+      <include name="jre/lib/ext/jaccess.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/nashorn.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.json-simple-1.1.1.classpath">
+    <pathelement location="${basedir}/lib/json-simple-1.1.1.jar"/>
+  </path>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module sensor-logging -->
+  
+  <dirname property="module.sensor-logging.basedir" file="${ant.file}"/>
 
-	<target name="clean">
-		<!-- remove output files from previous builds -->
-		<delete includeEmptyDirs="true">
-			<fileset dir="${build}"/>
-			<fileset dir="${class}/edu"/>
-		</delete>
-	</target>
+  <property name="module.jdk.home.sensor-logging" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.sensor-logging" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.sensor-logging" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.sensor-logging" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="sensor-logging.output.dir" value="${module.sensor-logging.basedir}/out/"/>
+  <property name="sensor-logging.testoutput.dir" value="${module.sensor-logging.basedir}/out/test/"/>
+  
+  <path id="sensor-logging.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="sensor-logging.module.production.classpath">
+    <path refid="${module.jdk.classpath.sensor-logging}"/>
+    <path refid="library.json-simple-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sensor-logging.runtime.production.module.classpath">
+    <pathelement location="${sensor-logging.output.dir}"/>
+    <path refid="library.json-simple-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sensor-logging.module.classpath">
+    <path refid="${module.jdk.classpath.sensor-logging}"/>
+    <pathelement location="${sensor-logging.output.dir}"/>
+    <path refid="library.json-simple-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sensor-logging.runtime.module.classpath">
+    <pathelement location="${sensor-logging.testoutput.dir}"/>
+    <pathelement location="${sensor-logging.output.dir}"/>
+    <path refid="library.json-simple-1.1.1.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.sensor-logging">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.sensor-logging">
+    <patternset refid="excluded.from.module.sensor-logging"/>
+  </patternset>
+  
+  <path id="sensor-logging.module.sourcepath">
+    <dirset dir="${module.sensor-logging.basedir}/source">
+      <include name="edu"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.sensor-logging" depends="compile.module.sensor-logging.production,compile.module.sensor-logging.tests" description="Compile module sensor-logging"/>
+  
+  <target name="compile.module.sensor-logging.production" description="Compile module sensor-logging; production classes">
+    <mkdir dir="${sensor-logging.output.dir}"/>
+    <javac destdir="${sensor-logging.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.sensor-logging}/javac">
+      <compilerarg line="${compiler.args.sensor-logging}"/>
+      <bootclasspath refid="sensor-logging.module.bootclasspath"/>
+      <classpath refid="sensor-logging.module.production.classpath"/>
+      <src refid="sensor-logging.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.sensor-logging"/>
+    </javac>
+  </target>
+  
+  <target name="compile.module.sensor-logging.tests" depends="compile.module.sensor-logging.production" description="compile module sensor-logging; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.sensor-logging" description="cleanup module">
+    <delete dir="${sensor-logging.output.dir}"/>
+    <delete dir="${sensor-logging.testoutput.dir}"/>
+    <delete>
+      <fileset dir="${module.sensor-logging.basedir}" includes="*.jar"/>
+    </delete>
+  </target>
 
-	<target name="common">
-	</target>
+  <target name="unjar.dependencies">
+    <unzip src="${basedir}/lib/json-simple-1.1.1.jar" dest="${sensor-logging.output.dir}">
+      <patternset>
+        <exclude name="META-INF/**"/>
+      </patternset>
+    </unzip>
+  </target>
 
-	<target name="car">
-	</target>
+  <target name="jar.car">
+    <jar destfile="car.jar">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.CarMain"/>
+      </manifest>
+      <fileset dir="${sensor-logging.output.dir}">
+        <exclude name="edu/utdallas/utdmotorsports/pit/"/>
+        <exclude name="edu/utdallas/utdmotorsports/car/CarSimulator.class"/>
+        <exclude name="edu/utdallas/utdmotorsports/car/sensors/Spoof*.class"/>
+        <exclude name="edu/utdallas/utdmotorsports/car/sensors/Simulated*.class"/>
+      </fileset>
+      <fileset dir="${module.sensor-logging.basedir}">
+        <include name="config/*"/>
+        <exclude name="config/simulation/"/>
+      </fileset>
+    </jar>
+  </target>
 
-	<target name="pit">
-	</target>
+  <target name="jar.car_sim">
+    <jar destfile="car_sim.jar">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.CarSimulator"/>
+      </manifest>
+      <fileset dir="${sensor-logging.output.dir}" excludes="edu/utdallas/utdmotorsports/pit/"/>
+      <fileset dir="${module.sensor-logging.basedir}">
+        <include name="config/simulation/**"/>
+      </fileset>
+    </jar>
+  </target>
 
-	<target name="test">
-	</target>
+  <target name="jar.pit" >
+    <jar destfile="pit.jar">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.pit.PitMain"/>
+      </manifest>
+      <fileset dir="${sensor-logging.output.dir}" excludes="edu/utdallas/utdmotorsports/car/"/>
+      <fileset dir="${module.sensor-logging.basedir}">
+        <include name="config/pit/**"/>
+      </fileset>
+    </jar>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.sensor-logging" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.sensor-logging" description="build all modules"/>
 
+  <target name="jar.modules" depends="unjar.dependencies, jar.car, jar.car_sim, jar.pit" description="jar classes"/>
+
+  <target name="all" depends="build.modules, jar.modules" description="build all"/>
+
+  <target name="run.car_sim" description="run a standalone instance of the car simulation">
+    <java jar="${module.sensor-logging.basedir}/car_sim.jar" fork="true"/>
+  </target>
+
+  <target name="run.pit" description="run a standalone instance of the pit software">
+    <java jar="${module.sensor-logging.basedir}/pit.jar" fork="true"/>
+  </target>
+
+  <target name="run.pit.car_sim" depends="run.car_sim, run.pit" description="run the pit software and an instance of the car simulation"/>
 </project>

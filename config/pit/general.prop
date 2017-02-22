@@ -1,0 +1,7 @@
+# UDP multicast
+multicast_group = 225.0.0.1
+multicast_port = 6000
+
+# TCP data transmitting service
+service_name = Halley's Comet Data Transmitter
+
