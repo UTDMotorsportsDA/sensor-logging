@@ -1,0 +1,16 @@
+<!--
+This is the Ant build file for the project.
+Most popular Java IDEs like Eclipse and IntelliJ IDEA support compiling using Ant builds,
+-->
+
+<?xml version="1.0" encoding="UTF-8">
+<project name="sensor-logging" default="all">
+
+	<property name="root" location="${ant.file}"/>
+	<property name="src" location="${root}/source"/>
+	<property name="class" location="${root}/class"/>
+	<property name="build" location="${root}/jar"/>
+	<property name="manifest" location="${root}/manifest"/>
+
+
+</project>

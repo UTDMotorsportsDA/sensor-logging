@@ -1,1 +1,12 @@
-*.jar
+/*
+!.gitignore
+!Makefile
+!build.xml
+!class/
+!config/
+!jar/
+!lib/
+!pit_modules/
+!source/
+!manifest
+!README.md
