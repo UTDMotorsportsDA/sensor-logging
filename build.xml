@@ -5,7 +5,7 @@
   <property file="build.properties"/>
   <!-- Uncomment the following property if no tests compilation is needed -->
 
-  <property name="skip.tests" value="true"/>
+  <!--<property name="skip.tests" value="true"/>-->
 
   
   <!-- Compiler options -->
@@ -107,7 +107,7 @@
   <property name="compiler.args.sensor-logging" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
   
   <property name="sensor-logging.output.dir" value="${module.sensor-logging.basedir}/out/"/>
-  <property name="sensor-logging.testoutput.dir" value="${module.sensor-logging.basedir}/out/test/"/>
+  <property name="sensor-logging.testoutput.dir" value="${module.sensor-logging.basedir}/out/test"/>
   
   <path id="sensor-logging.module.bootclasspath">
     <!-- Paths to be included in compilation bootclasspath -->
@@ -149,7 +149,12 @@
       <include name="edu"/>
     </dirset>
   </path>
-  
+
+  <path id="sensor-logging.module.testsourcepath">
+    <dirset dir="${module.sensor-logging.basedir}/source">
+      <include name="test"/>
+    </dirset>
+  </path>
   
   <target name="compile.module.sensor-logging" depends="compile.module.sensor-logging.production,compile.module.sensor-logging.tests" description="Compile module sensor-logging"/>
   
@@ -163,8 +168,23 @@
       <patternset refid="excluded.from.compilation.sensor-logging"/>
     </javac>
   </target>
-  
-  <target name="compile.module.sensor-logging.tests" depends="compile.module.sensor-logging.production" description="compile module sensor-logging; test classes" unless="skip.tests"/>
+
+  <target name="compile.module.sensor-logging.tests" depends="compile.module.sensor-logging.production"
+          description="compile sensor-logging test classes" unless="skip.tests">
+    <mkdir dir="${sensor-logging.testoutput.dir}"/>
+    <javac destdir="${sensor-logging.testoutput.dir}" debug="${compiler.debug}"
+           nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true"
+           executable="${module.jdk.bin.sensor-logging}/javac">
+      <compilerarg line="${compiler.args.sensor-logging}"/>
+      <bootclasspath refid="sensor-logging.module.bootclasspath"/>
+      <classpath>
+        <path refid="sensor-logging.module.production.classpath"/>
+        <pathelement path="${sensor-logging.output.dir}"/>
+      </classpath>
+      <src refid="sensor-logging.module.testsourcepath"/>
+      <patternset refid="excluded.from.compilation.sensor-logging"/>
+    </javac>
+  </target>
   
   <target name="clean.module.sensor-logging" description="cleanup module">
     <delete dir="${sensor-logging.output.dir}"/>
@@ -186,7 +206,7 @@
     <jar destfile="car.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
-        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.CarMain"/>
+        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.Main"/>
       </manifest>
       <fileset dir="${sensor-logging.output.dir}">
         <exclude name="edu/utdallas/utdmotorsports/pit/"/>
@@ -223,7 +243,7 @@
     <jar destfile="pit.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
-        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.pit.PitMain"/>
+        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.pit.Main"/>
       </manifest>
       <fileset dir="${sensor-logging.output.dir}" excludes="edu/utdallas/utdmotorsports/car/"/>
       <fileset dir="${module.sensor-logging.basedir}">

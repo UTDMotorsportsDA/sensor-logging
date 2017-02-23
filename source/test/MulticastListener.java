@@ -1,5 +1,3 @@
-package edu.utdallas.utdmotorsports.pit;
-
 import edu.utdallas.utdmotorsports.Stoppable;
 
 import java.io.IOException;
@@ -8,8 +6,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 
-/* Classes in this package are used purely to aid in the development of the .car package.
- * The .pit package may be used as an example, but no guarantees toward quality are made.
+/**
+ * Dump all messages received on the multicast group
  */
 // listen and dump all messages on multicast group
 public class MulticastListener implements Runnable, Stoppable {

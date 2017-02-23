@@ -3,7 +3,6 @@ package edu.utdallas.utdmotorsports.car.sensors;
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.car.Sensor;
 
-import java.time.Duration;
 import java.time.Instant;
 
 /**

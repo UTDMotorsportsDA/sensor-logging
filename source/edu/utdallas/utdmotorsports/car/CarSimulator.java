@@ -5,9 +5,9 @@ package edu.utdallas.utdmotorsports.car;
  */
 public class CarSimulator {
     public static void main(String[] args) {
-        // start CarMain with specific simulation files
+        // start Main with specific simulation files
         String[] pass_args = {"config/simulation/general.prop", "config/simulation/sensor.prop"};
         System.out.println("Values shown are for debugging only and are subject to change.\n");
-        CarMain.main(pass_args);
+        Main.main(pass_args);
     }
 }

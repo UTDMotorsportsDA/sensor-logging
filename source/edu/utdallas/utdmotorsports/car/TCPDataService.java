@@ -5,7 +5,6 @@ import edu.utdallas.utdmotorsports.QueueMultiConsumer;
 import edu.utdallas.utdmotorsports.Stoppable;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -64,7 +63,6 @@ public class TCPDataService implements Runnable, Stoppable, QueueMultiConsumer<D
                     if(clients.size() >= maxConnectionCount) break;
                 }
             } catch (IOException e) {
-                System.out.println("IOException caught");
                 if(!done) {
                     e.printStackTrace();
                     System.err.println("creating new ServerSocket on port " + servicePort);

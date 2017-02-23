@@ -7,9 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Created by brian on 11/9/16.
- * this implementation is sub-optimal for platform, needs:
- *      critical state sensing
+ * Communicate with the IMU
  */
 
 public class LSM303AccelerationSensor extends Sensor {

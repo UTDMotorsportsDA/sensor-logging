@@ -3,11 +3,10 @@ package edu.utdallas.utdmotorsports.car.sensors;
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.car.Sensor;
 
-import java.time.Duration;
 import java.time.Instant;
 
 /**
- * simulate a sensor with only one number value in each data point
+ * simulate a sensor with a 3D vector value in each data point
  */
 public class SimulatedSensorVecFloat extends Sensor {
 

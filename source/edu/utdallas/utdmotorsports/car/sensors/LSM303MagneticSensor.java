@@ -6,7 +6,9 @@ import edu.utdallas.utdmotorsports.car.Sensor;
 import java.time.Duration;
 import java.time.Instant;
 
-// outputs magnetic vector in Tesla
+/**
+ * Communicate with the IMU
+ */
 public class LSM303MagneticSensor extends Sensor {
 
     private int busNumber;

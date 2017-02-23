@@ -63,8 +63,7 @@ class DataLogger implements Runnable, Stoppable {
         runningThread = Thread.currentThread();
 
         // create specific updaters, make the first updater a catch-all
-        SensorUpdater[] updaters = { new SensorUpdater(this) }; //,
-//                new SpoofSensorUpdater(this) };
+        SensorUpdater[] updaters = {new SensorUpdater(this)};
 
         // add every sensor to the list of updaters
         // if sensor can't be placed in any specific updater, place it in the default

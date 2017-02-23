@@ -17,7 +17,7 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-public class CarMain {
+public class Main {
     private static String DEFAULT_CONFIG_FILE = "config/general.prop";
     private static String DEFAULT_SENSORS_FILE = "config/sensor.prop";
 
@@ -57,7 +57,7 @@ public class CarMain {
                 props.load(new FileInputStream(new File(chosenConfigFile)));
             else
                 // get the config file saved in this JAR
-                props.load(CarMain.class.getResourceAsStream("/" + chosenConfigFile));
+                props.load(Main.class.getResourceAsStream("/" + chosenConfigFile));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -105,7 +105,7 @@ public class CarMain {
             sensors = ConfigLoader.getSensorsFromFile(chosenSensorsFile);
         else
             // get the sensors file saved in this JAR
-            sensors = ConfigLoader.getSensorsFromFile(CarMain.class.getResourceAsStream("/" + chosenSensorsFile));
+            sensors = ConfigLoader.getSensorsFromFile(Main.class.getResourceAsStream("/" + chosenSensorsFile));
     }
 
     // args: parameter config file, sensor config file
@@ -232,14 +232,6 @@ final class ConfigLoader {
 
             // create sensor of specified type and add to arrayList
             switch (parameters[0]) {
-                case "Spoof":
-                    if(parameters.length != 4) {
-                        System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (Spoof type requires exactly 4)");
-                        continue iterateProperties;
-                    }
-                    sensors.add(new SpoofSensor(sensorName, refreshPeriods));
-                    break;
-
                 case "LSM303a":
                     if(parameters.length != 6) {
                         System.err.println("config.properties error (" + sensorName + "): incorrect number of parameters (LSM303a type requires exactly 6)");

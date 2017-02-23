@@ -27,11 +27,14 @@ Requirements:
 
 Main subsystems:
 
-* Data Controller
-* Instrument Cluster 
-* Pit Interface
-
-As depicted, the system consists of the Engine Control Unit (ECU), which connects to most sensors, and an Adafruit 9-DOF IMU (3-axis accelerometer, gyroscope, and magnetometer) both feeding data to a Beaglebone Black. ...
+* Data Controller - collect and distribute sensor data
+    
+    Everything under the package ```edu.utdallas.utdmotorsports.car``` supports this subsystem.
+    
+    The Data controller functionality is centered around a list of sensors loaded at program startup. 
+    
+* Instrument Cluster (a.k.a. dashboard) - display data and alerts to the driver
+* Pit User Interface - display data, graphs and analysis to the race engineers
 
 ## Communication Protocol
-All devices on the network communicate with each other using [JSON (Javascript Object Notation)](http://json.org)
+All devices on the network communicate with each other using [JSON (Javascript Object Notation)](http://json.org).

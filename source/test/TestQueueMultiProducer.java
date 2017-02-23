@@ -1,12 +1,8 @@
-package test;
-
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.QueueMultiConsumer;
 import edu.utdallas.utdmotorsports.QueueMultiProducer;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 

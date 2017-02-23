@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Created by brian on 11/14/16.
+ * Communicate with the IMU
  */
 public class L3GD20HGyroscopeSensor extends Sensor {
     public final double RADIANS_PER_DEGREE = Math.PI / 180.0;

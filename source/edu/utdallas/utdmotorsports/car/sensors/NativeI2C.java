@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by brian on 11/9/16.
+ * Native interface for I2C on the BeagleBone
  */
 public final class NativeI2C {
     // connect bus numbers to open file descriptors

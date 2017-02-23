@@ -3,12 +3,11 @@
 **/*.class
 !.gitignore
 !lib/json-simple-1.1.1.jar
-!Makefile
 !build.xml
 !class/
 !config/
 !lib/
 !pit_modules/
 !source/
-!manifest
 !README.md
+!docs/
