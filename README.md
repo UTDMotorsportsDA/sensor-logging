@@ -1,6 +1,8 @@
 # UTD Motorsports Data Aqcuisition Software
 This repository contains code and related files for the UT Dallas Motorsports FSAE team's Data Aqcuisition System.
 
+[Generated JavaDoc](https://utdmotorsportsda.github.io/sensor-logging/)
+
 ## Index
 * Design Overview - basic ideas behind the design of this system
 * System Layout - what hardware is used, how devices are connected
