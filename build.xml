@@ -239,6 +239,15 @@
     </jar>
   </target>
 
+    <target name="jar.cluster" >
+        <jar destfile="cluster.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.cluster.Main"/>
+            </manifest>
+        </jar>
+    </target>
+
   <target name="jar.pit" >
     <jar destfile="pit.jar">
       <manifest>
@@ -260,7 +269,7 @@
   
   <target name="build.modules" depends="init, clean, compile.module.sensor-logging" description="build all modules"/>
 
-  <target name="jar.modules" depends="unjar.dependencies, jar.car, jar.car_sim, jar.pit" description="jar classes"/>
+  <target name="jar.modules" depends="unjar.dependencies, jar.car, jar.car_sim, jar.cluster, jar.pit" description="jar classes"/>
 
   <target name="all" depends="build.modules, jar.modules" description="build all"/>
 
