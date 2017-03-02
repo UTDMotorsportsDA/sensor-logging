@@ -1,13 +1,14 @@
 /*
-**/*.jar
 **/*.class
 !.gitignore
 !lib/json-simple-1.1.1.jar
 !build.xml
-!class/
 !config/
 !lib/
 !pit_modules/
 !source/
 !README.md
 !docs/
+!/sensor-logging.iml
+!/.idea/
+/.idea/workspace.xml
