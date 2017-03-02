@@ -2,12 +2,11 @@ import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.QueueMultiConsumer;
 import edu.utdallas.utdmotorsports.QueueMultiProducer;
 
-import java.time.Instant;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Created by brian on 2/18/17.
+ * Print data from a queue to standard output
  */
 class QueuePrinter implements QueueMultiConsumer<DataPoint> {
 
@@ -24,6 +23,9 @@ class QueuePrinter implements QueueMultiConsumer<DataPoint> {
     }
 }
 
+/**
+ * Test the QueueMultiProducer class
+ */
 public class TestQueueMultiProducer {
     public static void main(String[] args) throws InterruptedException{
         BlockingQueue<DataPoint> testQueue = new ArrayBlockingQueue<>(64);
@@ -38,7 +40,7 @@ public class TestQueueMultiProducer {
         for(int i = 0; i < 10; ++i) {
             Thread.sleep(3000);
 
-            testQueue.add(new DataPoint("sensor", "value " + i, Instant.now().toEpochMilli(), true));
+            testQueue.add(new DataPoint("sensor", "value " + i, System.currentTimeMillis(), true));
         }
         System.out.println("done");
         Thread.sleep(3000);

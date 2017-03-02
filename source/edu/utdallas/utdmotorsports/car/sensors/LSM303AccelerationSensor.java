@@ -4,7 +4,6 @@ import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.car.Sensor;
 
 import java.time.Duration;
-import java.time.Instant;
 
 /**
  * Communicate with the IMU
@@ -42,7 +41,7 @@ public class LSM303AccelerationSensor extends Sensor {
         // pull a set of XYZ values from the accelerometer
         // record the time at which the reading was taken
         byte[] reading = readValue();
-        long timestamp = Instant.now().toEpochMilli();
+        long timestamp = System.currentTimeMillis();
 
         // convert from LSM303 register values a string of SI-unit values
         String value = "";
