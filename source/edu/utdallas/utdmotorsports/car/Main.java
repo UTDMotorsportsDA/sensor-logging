@@ -30,6 +30,26 @@ public class Main {
     private static int serviceMaxConnectionCount;
     private static ArrayList<Sensor> sensors;
 
+    /**
+     * Return the lesser of two same-typed Comparable objects.
+     *
+     * @param <E> some type that implements Comparable<>
+     * @return the lesser of the two elements based on their natural ordering
+     */
+    public static <E extends Comparable<? super E>> E min(E a, E b) {
+        return (a.compareTo(b) <= 0) ? a : b;
+    }
+
+    /**
+     * Return the greater of two same-typed Comparable objects.
+     *
+     * @param <E> some type that implements Comparable<>
+     * @return the greater of the two elements based on their natural ordering
+     */
+    public static <E extends Comparable<? super E>> E max(E a, E b) {
+        return (a.compareTo(b) >= 0) ? a : b;
+    }
+
     private static void loadConfigs(String[] args) {
         // these contain final selection of config
         String chosenConfigFile, chosenSensorsFile;

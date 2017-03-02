@@ -4,21 +4,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Native interface for I2C on the BeagleBone
+ * Native interface for I2C on the BeagleBone - requires libnativeI2C.so
  */
 public final class NativeI2C {
-    // connect bus numbers to open file descriptors
+    /**
+     * Register previously-opened I2C buses to avoid unnecessary creation deletion.
+     */
     private static Map<Integer, Integer> fdMap;
 
-    // no instantiation allowed
+    /**
+     * Prevent multiple instantiation (NativeI2C is a singleton).
+     */
     private NativeI2C() {}
 
+    // load external library object
     static {
         System.loadLibrary("nativei2c");
         fdMap = new HashMap<>();
     }
 
-    // accept start address as a parameter
+    /**
+     * Send a byte array over I2C
+     *
+     * @param bytes                Bytes to be sent
+     * @param numBytes             Number of bytes to send
+     * @param slaveAddress         I2C address of the intended receiver
+     * @param registerStartAddress Receiver's register address to store incoming data
+     * @param deviceNumber         Identifier for the physical bus over which to send data
+     * @return 0 for success, -1 for failure
+     */
     public static synchronized int write(byte[] bytes, int numBytes, byte registerStartAddress, byte slaveAddress, int deviceNumber) {
         int fd = fileDescriptorOf(deviceNumber);
         byte[] wbuf = new byte[numBytes + 1];
