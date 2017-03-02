@@ -1,7 +1,7 @@
 # UTD Motorsports Data Acquisition Software
 This repository contains code and related files for the UT Dallas Motorsports FSAE team's Data Acquisition System.
 
-[Generated JavaDoc][1]
+[Generated JavaDoc](https://utdmotorsportsda.github.io/sensor-logging/)
 
 ## Index
 * Design Overview - basic ideas behind the design of this system
@@ -55,8 +55,8 @@ perform analysis on the data to make sense of information from multiple sensors 
 improvements to be made to the vehicle.
 
 ## Communication Protocol
-All devices on the network communicate with each other using [JSON](http://json.org) objects. The [json-simple library](2) is
-included in this project, and examples can be found both in the car software and in the [library wikis](3). All devices
+All devices on the network communicate with each other using [JSON](http://json.org) objects. The [json-simple library](https://code.google.com/archive/p/json-simple/) is
+included in this project, and examples can be found both in the car software and in the [library wikis](https://code.google.com/archive/p/json-simple/wikis). All devices
 must first connect to the system's multicast group on the correct port, both of which will be known by each device at startup.
 
 ### Automatic service discovery:
@@ -70,7 +70,9 @@ to a service, the device must send a discovery request message formatted as foll
     }
 }
 ```
-**note: whitespace and indentation is optional in JSON. The above is equivalent to ```{"discovery request":{"name":"service's predetermined name"}}```.**
+**note: whitespace and indentation is optional in JSON. The above is equivalent to**
+
+**```{"discovery request":{"name":"service's predetermined name"}}```.**
 
 Services must listen on the multicast group for messages of this format that match their name and issue a response like the following:
 ```
@@ -114,7 +116,7 @@ Below is an example of how the controller might respond to a request:
 Notice that a "params" field is included in the response. This URL points to a file that enumerates
 all available sensors and their data formats.
 
-```service_params.txt```:
+service_params.txt:
 ```
 IMU_accelerometer=vec-3-double
 engine_RPM=int
@@ -131,7 +133,3 @@ January 1, 1970.
 * "status" is either "OK" or "critical"
 
 Additionally, the car software provides a data broadcast, meaning the entire multicast group receives identical messages to those shown.
-
-[1]: https://utdmotorsportsda.github.io/sensor-logging/
-[2]: https://code.google.com/archive/p/json-simple/
-[3]: https://code.google.com/archive/p/json-simple/wikis
