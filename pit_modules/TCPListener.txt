@@ -1,7 +1,11 @@
-Write a class called TCPListener that will locate the car on the network using our automatic discovery protocol, open a client socket, and receive data from the network. There is no need for filtering. Add each data point to a queue stored by the TCPListener. It is recommend that you use the DataPoint class to convert incoming strings to usable values, but other solutions are valid as long as they're consistent across the pit software.
+Write a class called TCPListener that will locate the car on the network using our automatic discovery protocol,
+open a client socket, and receive data from the network. There is no need for filtering. Add each data point to a queue
+stored by the TCPListener. It is recommend that you use the DataPoint class to convert incoming strings to usable
+values, but other solutions are valid as long as they're consistent across the pit software.
 
 Input:
-The constructor should accept the multicast group as a string (e.g.: "225.0.0.1") and the network port to be used as an int (e.g.: 1234)
+The constructor should accept the multicast group as a string (e.g.: "225.0.0.1") and the network port to be used as an
+int (e.g.: 1234)
 
 Additional Requirements:
 

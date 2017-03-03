@@ -1,0 +1,11 @@
+Following the tutorial on the github wiki, write a class called VectorCalculatorXXX, where XXX are your initials
+(to avoid conflicts) that will perform basic vector operations.
+
+Required operations:
+* sum(a, b) - return the vector sum of a and b
+* difference(a, b) - return a minus b
+* magnitude(a) - return the magnitude of vector a
+
+All vectors will be given as arrays of floats, and each vector must be validated to ensure its contains three values.
+
+Each operation should be a publicly available static method inside the class.
