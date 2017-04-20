@@ -27,7 +27,7 @@ Primary subsystems:
 
 * Data Controller - collect and distribute sensor data
     
-    Everything under the package ```edu.utdallas.utdmotorsports.car``` supports this subsystem.
+    Everything under the package ```edu.utdallas.utdmotorsports.controller``` supports this subsystem.
     
 * Instrument Cluster (a.k.a. dashboard) - display data and alerts to the driver
 

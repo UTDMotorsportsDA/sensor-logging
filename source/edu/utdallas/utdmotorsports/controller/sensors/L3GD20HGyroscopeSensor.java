@@ -1,7 +1,7 @@
-package edu.utdallas.utdmotorsports.car.sensors;
+package edu.utdallas.utdmotorsports.controller.sensors;
 
 import edu.utdallas.utdmotorsports.DataPoint;
-import edu.utdallas.utdmotorsports.car.Sensor;
+import edu.utdallas.utdmotorsports.controller.Sensor;
 
 import java.time.Duration;
 

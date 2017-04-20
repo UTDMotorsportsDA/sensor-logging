@@ -1,14 +1,13 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.controller;
 
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.QueueMultiProducer;
-import edu.utdallas.utdmotorsports.car.sensors.*;
+import edu.utdallas.utdmotorsports.controller.sensors.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -21,13 +20,6 @@ public class Main {
     private static String DEFAULT_CONFIG_FILE = "config/general.prop";
     private static String DEFAULT_SENSORS_FILE = "config/sensor.prop";
 
-    // configurable parameters
-    private static String multicastGroupName;
-    private static int multicastPort;
-    private static String serviceName;
-    private static String parametersPath;
-    private static int servicePort;
-    private static int serviceMaxConnectionCount;
     private static ArrayList<Sensor> sensors;
 
     private static void loadConfigs(String[] args) {
@@ -63,42 +55,6 @@ public class Main {
             System.exit(1);
         }
 
-        // pull network parameters from general config file
-        multicastGroupName = props.getProperty("multicast_group");
-        if(multicastGroupName == null) {
-            System.err.println("could not find multicast_group in " + chosenConfigFile);
-            System.exit(1);
-        }
-        String mcastPort = props.getProperty("multicast_port");
-        if(mcastPort == null) {
-            System.err.println("could not find multicast_port in " + chosenConfigFile);
-            System.exit(1);
-        }
-        multicastPort = Integer.parseInt(mcastPort);
-
-        serviceName = props.getProperty("service_name");
-        if(serviceName == null) {
-            System.err.println("could not find service_name in " + chosenConfigFile);
-            System.exit(1);
-        }
-        parametersPath = props.getProperty("parameters_location");
-        if(parametersPath == null) {
-            System.err.println("could not find parameters_location in " + chosenConfigFile);
-            System.exit(1);
-        }
-        String svcPort = props.getProperty("server_socket_port");
-        if(svcPort == null) {
-            System.err.println("could not find server_socket_port in " + chosenConfigFile);
-            System.exit(1);
-        }
-        servicePort = Integer.parseInt(svcPort);
-        String svcMaxConn = props.getProperty("max_connection_count");
-        if(svcMaxConn == null) {
-            System.err.println("could not find max_connection_count in " + chosenConfigFile);
-            System.exit(1);
-        }
-        serviceMaxConnectionCount = Integer.parseInt(svcMaxConn);
-
         // load sensors
         if(chosenSensorsFile.charAt(0) == '/' || chosenSensorsFile.substring(0, 2).equals("./"))
             // get the sensors file from the user's filesystem
@@ -112,12 +68,8 @@ public class Main {
     public static void main(String[] args) {
         loadConfigs(args);
 
-        // sanity check
-        System.out.println("Multicast Group: " + multicastGroupName + ":" + multicastPort);
-
         // client to collect and enqueue data, transmitter to broadcast from the queue
         DataLogger logger = null;
-        ServiceDiscoveryResponder SDR = null;
         BlockingQueue<DataPoint> dataQueue = new PriorityBlockingQueue<>(); // get the data out in timestamp order
 
         // create the logger to enqueue data points from sensors
@@ -127,53 +79,25 @@ public class Main {
         Thread loggerThread = new Thread(logger);
         loggerThread.start();
 
-        InetAddress multicastGroup = null;
-        try {
-            // get a proper InetAddress
-            multicastGroup = InetAddress.getByName(multicastGroupName);
-
-            // responder sits on the network and notifies other devices of where to open a TCP socket
-            SDR = new ServiceDiscoveryResponder(multicastGroup, multicastPort, serviceName, servicePort, parametersPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
         // manage multiple-consumption of data
         QueueMultiProducer<DataPoint> dataPointQueueManager = new QueueMultiProducer<>(dataQueue);
-        dataPointQueueManager.addConsumer(new UDPTransmitter(multicastGroup, multicastPort));
 
         // start data-managing thread
         Thread dataPointQueueManagerThread = new Thread(dataPointQueueManager);
         dataPointQueueManagerThread.start();
 
-        // open the TCP service on a thread to accept and feed connections
-        TCPDataService dataService = new TCPDataService(servicePort, serviceMaxConnectionCount);
-        Thread dataServiceThread = new Thread(dataService);
-        dataServiceThread.start();
-
-        // data service needs to consume data points
-        dataPointQueueManager.addConsumer(dataService);
-
-        // open the service responder to support service discovery
-        Thread responderThread = new Thread(SDR);
-        responderThread.start();
-
         // quit when user is done
+        System.out.println("\n***Type Q<enter> to quit.***\n");
         Scanner stdin = new Scanner(System.in);
         while(!stdin.next().toUpperCase().equals("Q"));
 
         // quit all threaded objects
         logger.quit();
         dataPointQueueManager.quit();
-        SDR.quit();
-        dataService.quit();
         try {
-            // join with threads
+            // wait for threads to exit
             loggerThread.join();
             dataPointQueueManagerThread.join();
-            responderThread.join();
-            dataServiceThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

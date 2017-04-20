@@ -1,4 +1,4 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.controller;
 
 import edu.utdallas.utdmotorsports.DataPoint;
 

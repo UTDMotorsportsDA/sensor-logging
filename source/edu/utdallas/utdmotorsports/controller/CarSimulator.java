@@ -1,7 +1,7 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.controller;
 
 /**
- * start a simulation of the car software for pit testing purposes
+ * start a simulation of the controller software for pit testing purposes
  */
 public class CarSimulator {
     public static void main(String[] args) {

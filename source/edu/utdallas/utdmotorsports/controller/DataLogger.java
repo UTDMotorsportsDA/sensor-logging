@@ -1,8 +1,8 @@
-package edu.utdallas.utdmotorsports.car;
+package edu.utdallas.utdmotorsports.controller;
 
 import edu.utdallas.utdmotorsports.DataPoint;
 import edu.utdallas.utdmotorsports.Stoppable;
-import edu.utdallas.utdmotorsports.car.Sensor.RefreshType;
+import edu.utdallas.utdmotorsports.controller.Sensor.RefreshType;
 
 import java.time.Duration;
 import java.time.Instant;

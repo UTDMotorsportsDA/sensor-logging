@@ -206,7 +206,7 @@
     <jar destfile="car.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
-        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.Main"/>
+          <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.controller.Main"/>
       </manifest>
       <fileset dir="${sensor-logging.output.dir}">
         <exclude name="edu/utdallas/utdmotorsports/pit/"/>
@@ -230,7 +230,7 @@
     <jar destfile="car_sim.jar">
       <manifest>
         <attribute name="Built-By" value="${user.name}"/>
-        <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.car.CarSimulator"/>
+          <attribute name="Main-Class" value="edu.utdallas.utdmotorsports.controller.CarSimulator"/>
       </manifest>
       <fileset dir="${sensor-logging.output.dir}" excludes="edu/utdallas/utdmotorsports/pit/"/>
       <fileset dir="${module.sensor-logging.basedir}">

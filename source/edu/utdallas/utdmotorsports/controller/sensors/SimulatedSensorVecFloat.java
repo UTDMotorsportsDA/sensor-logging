@@ -1,7 +1,7 @@
-package edu.utdallas.utdmotorsports.car.sensors;
+package edu.utdallas.utdmotorsports.controller.sensors;
 
 import edu.utdallas.utdmotorsports.DataPoint;
-import edu.utdallas.utdmotorsports.car.Sensor;
+import edu.utdallas.utdmotorsports.controller.Sensor;
 
 /**
  * simulate a sensor with a 3D vector value in each data point
